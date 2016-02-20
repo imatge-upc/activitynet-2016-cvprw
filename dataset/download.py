@@ -19,15 +19,7 @@ def download_dataset(
     """
     Function to download all the dataset from the ActivityNet dataset
     """
-    if version == '1.1':
-        file_name = 'activity_net.v1-1.min.json'
-    elif version == '1.2':
-        file_name = 'activity_net.v1-2.min.json'
-    else:
-        raise Exception('Version Not Available')
-
-    with open(os.path.join(BASE_DIR, file_name)) as raw_file:
-        dataset = json.load(raw_file)
+    dataset = get_dataset(version)
 
     database = dataset['database']
     total_size = 0
@@ -54,6 +46,18 @@ def download_video(name, url, save_path):
     except Exception as e:
         LOGGER.error(str(e))
         LOGGER.error('Couldn\'t download video {}'.format(url))
+
+def get_dataset(version):
+    if version == '1.1':
+        file_name = 'activity_net.v1-1.min.json'
+    elif version == '1.2':
+        file_name = 'activity_net.v1-2.min.json'
+    else:
+        raise Exception('Version Not Available')
+
+    with open(os.path.join(BASE_DIR, file_name)) as raw_file:
+        dataset = json.load(raw_file)
+    return dataset
 
 def get_size(key, url):
     file_size = 0

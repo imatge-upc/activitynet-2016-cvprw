@@ -26,3 +26,6 @@ var/
 
 # IPython Notebook
 .ipynb_checkpoints
+
+# Deployment Config
+deployment-config.json
