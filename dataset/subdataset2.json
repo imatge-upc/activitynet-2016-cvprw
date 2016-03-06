@@ -401,28 +401,6 @@
         "resolution": "640x480",
         "duration": 196.09
     },
-    "zuNQFkkyBNo": {
-        "url": "https://www.youtube.com/watch?v=zuNQFkkyBNo",
-        "annotations": [
-            {
-                "label": "Smoking a cigarette",
-                "segment": [
-                    24.30672,
-                    36.55222
-                ]
-            },
-            {
-                "label": "Smoking a cigarette",
-                "segment": [
-                    5.48578,
-                    20.33611
-                ]
-            }
-        ],
-        "subset": "training",
-        "resolution": "1920x1080",
-        "duration": 41.01
-    },
     "L0K-WJuI1-I": {
         "url": "https://www.youtube.com/watch?v=L0K-WJuI1-I",
         "annotations": [
@@ -8301,21 +8279,6 @@
         "subset": "training",
         "resolution": "1280x720",
         "duration": 148.4
-    },
-    "m_B1Jb6Wwn0": {
-        "url": "https://www.youtube.com/watch?v=m_B1Jb6Wwn0",
-        "annotations": [
-            {
-                "label": "Cleaning shoes",
-                "segment": [
-                    0.01,
-                    29.61837
-                ]
-            }
-        ],
-        "subset": "training",
-        "resolution": "1440x1080",
-        "duration": 34.9
     },
     "p2n_FtzA1gk": {
         "url": "https://www.youtube.com/watch?v=p2n_FtzA1gk",
