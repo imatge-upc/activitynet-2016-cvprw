@@ -29,3 +29,8 @@ var/
 
 # Deployment Config
 deployment-config.json
+
+# Images and videos
+*.jpg
+*.avi
+*.mp4
