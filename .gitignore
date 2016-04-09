@@ -26,3 +26,11 @@ var/
 
 # IPython Notebook
 .ipynb_checkpoints
+
+# Deployment Config
+.remote-sync.json
+
+# Images and videos
+*.jpg
+*.avi
+*.mp4
