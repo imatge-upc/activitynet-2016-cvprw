@@ -1,2 +1,3 @@
-pytube
+jupyter
 youtube-dl
+-e git://github.com/Theano/Theano.git@ab833b1933d339ca4e040769e450195fa61bb958#egg=Theano

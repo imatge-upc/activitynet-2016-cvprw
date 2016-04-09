@@ -34,3 +34,6 @@ var/
 *.jpg
 *.avi
 *.mp4
+*.h5
+
+*/tmp/*
