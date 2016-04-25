@@ -54,30 +54,15 @@ class ActivityNetDataset(AbstractDataset):
         progbar = Progbar(len(self.videos))
         count = 0
         progbar.update(0)
-        for video in self.get_subset_videos('training'):
-            self.instances_training += video.get_video_instances(
-                length=length,
-                overlap=overlap
-            )
-            count += 1
-            if count % 100 == 0:
-                progbar.update(count)
-        for video in self.get_subset_videos('validation'):
-            self.instances_validation += video.get_video_instances(
-                length=length,
-                overlap=overlap
-            )
-            count += 1
-            if count % 100 == 0:
-                progbar.update(count)
-        for video in self.get_subset_videos('testing'):
-            self.instances_testing += video.get_video_instances(
-                length=length,
-                overlap=overlap
-            )
-            count += 1
-            if count % 100 == 0:
-                progbar.update(count)
+        for subset in ('training', 'validation', 'testing'):
+            for video in self.get_subset_videos(subset):
+                self.instances_training += video.get_video_instances(
+                    length=length,
+                    overlap=overlap
+                )
+                count += 1
+                if count % 100 == 0:
+                    progbar.update(count)
         progbar.update(count)
 
     @property
@@ -214,7 +199,7 @@ class ActivityNetVideo(object):
             overlap (float): proportion of the overlaping between video
                 instances.
         """
-        assert overlap >= 0 and overlap <1
+        assert overlap >= 0 and overlap < 1
 
 
         # Generate the list with the index of the first frame for each instance

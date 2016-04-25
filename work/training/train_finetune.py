@@ -104,8 +104,8 @@ def train():
     print('Computed class weights')
 
     model = get_model(summary=True)
-    sgd = SGD(lr=0.0001, momentum=0.9, decay=0.0005, nesterov=False)
-    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+    sgd = SGD(lr=0.0001, decay=0.0005, momentum=0.9, nesterov=True)
+    model.compile(optimizer=sgd, loss='categorical_crossentropy')
     print('Model compiled')
 
     # generator
@@ -130,7 +130,7 @@ def train():
     )
 
     nb_epochs = 2
-    batch_size = 8
+    batch_size = 32
     # training:
     history = model.fit_generator(
         generator.flow(
@@ -158,7 +158,9 @@ def train():
             seed=8924
         ),
         nb_val_samples=128,
-        class_weight=class_weights
+        class_weight=class_weights,
+        max_q_size=16,
+        nb_worker=10
     )
 
 

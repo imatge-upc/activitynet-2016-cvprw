@@ -5,10 +5,9 @@ from keras.preprocessing.image import img_to_array, load_img
 from keras.preprocessing.video import video_to_array
 
 
-class InstanceType(Enum):
+class DatasetType(Enum):
     IMAGE = 0           # Image data
     VIDEO = 1           # Video data
-    IMAGE_3D = 2        # 3D Images (used in medical applications for example)
 
 class AbstractDataset(object):
     """ Class that represent a dataset which contains lots of instances
