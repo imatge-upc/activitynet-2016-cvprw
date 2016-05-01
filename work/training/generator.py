@@ -1,5 +1,5 @@
-import multiprocessing
 import sys
+import threading
 import time
 
 import numpy as np
@@ -18,7 +18,7 @@ class VideoGenerator(object):
         self.videos = videos
         self.total_nb_videos = len(videos)
         self.flow_generator = self._flow_index(self.total_nb_videos)
-        self.lock = multiprocessing.Lock()
+        self.lock = threading.Lock()
         self.stored_videos_path = stored_videos_path
         self.stored_videos_extension = stored_videos_extension
         self.length = length
@@ -69,7 +69,7 @@ class VideoDatasetGenerator(object):
         self.mean = None
         self.std = None
         self.principal_components = None
-        self.lock = multiprocessing.Lock()
+        self.lock = threading.Lock()
 
 
     def random_transform(self, x):

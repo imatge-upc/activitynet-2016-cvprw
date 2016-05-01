@@ -46,14 +46,11 @@ class ActivityNetDataset(AbstractDataset):
         parameters that will be given.
         This will generate the instances of all subsets.
         """
-        self.size = size
         self.length = length
-        self.instances_training = []
-        self.instances_validation = []
-        self.instances_testing = []
         progbar = Progbar(len(self.videos))
         count = 0
         progbar.update(0)
+        self.instances_training = []
         for subset in ('training', 'validation', 'testing'):
             for video in self.get_subset_videos(subset):
                 self.instances_training += video.get_video_instances(
@@ -64,6 +61,7 @@ class ActivityNetDataset(AbstractDataset):
                 if count % 100 == 0:
                     progbar.update(count)
         progbar.update(count)
+        return self.instances_training
 
     @property
     def instances(self):
@@ -156,6 +154,9 @@ class ActivityNetDataset(AbstractDataset):
             self.class_weights.update({indx: weight})
         return self.class_weights
 
+    def serialize(self):
+        return {video.video_id: video.serialize() for video in self.videos}
+
 class ActivityNetVideo(object):
     """ Class to encapsulate a video from the given dataset
     """
@@ -173,6 +174,7 @@ class ActivityNetVideo(object):
         self.extension = extension
         self.num_frames = params['num_frames']
         self.output_type = 'category'
+        self.instances = []
 
 
         if self.annotations != []:
@@ -201,7 +203,8 @@ class ActivityNetVideo(object):
         """
         assert overlap >= 0 and overlap < 1
 
-
+        if self.instances:
+            return self.instances
         # Generate the list with the index of the first frame for each instance
         last_first_frame = self.num_frames - length
         overlap_fr = int(overlap*length)
@@ -220,7 +223,7 @@ class ActivityNetVideo(object):
                     outputs[i] = self.label
                     break
 
-        instances = []
+        self.instances = []
         for start_frame in start_frames:
             # Obtain the label for this instance and then its output
             output = None
@@ -231,12 +234,22 @@ class ActivityNetVideo(object):
                 else:
                     output = self.dataset.get_output_index('none')
 
-            instances.append(ActivityNetInstance(
+            self.instances.append(ActivityNetInstance(
                 instance_id=self.video_id,
                 start_frame=start_frame,
                 output=output
             ))
-        return instances
+        return self.instances
+
+    def serialize(self):
+        return {
+            'subset': self.subset,
+            'num_frames': self.num_frames,
+            'url': self.url,
+            'duration': self.duration,
+            'resolution': self.resolution,
+            'annotations': self.annotations
+        }
 
 
 class ActivityNetInstance(AbstractInstance):

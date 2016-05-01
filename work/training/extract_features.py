@@ -1,10 +1,11 @@
-import multiprocessing
+import Queue
 import sys
+import threading
 import time
+from os import listdir
 
 import numpy as np
 
-from keras.preprocessing.image import list_pictures
 from keras.utils.generic_utils import Progbar
 from work.config import (STORED_FEATURES_PATH, STORED_VIDEOS_EXTENSION,
                          STORED_VIDEOS_PATH)
@@ -13,12 +14,12 @@ from work.models.c3d import C3D_conv_features
 from work.training.generator import VideoGenerator
 
 
-def extract_features():
+def extract_features(start, end):
     # Defining variables
     input_size = (112, 112)
     length = 16
     batch_size = 32
-    max_q_size = 10
+    max_q_size = 12
     nb_workers = 8
     wait_time = 0.1
 
@@ -31,8 +32,7 @@ def extract_features():
         files_extension=STORED_VIDEOS_EXTENSION
     )
     # Removing the videos which already were extracted its features
-    extracted_features_files = list_pictures(STORED_FEATURES_PATH, ext='npy')
-    features_ids = [feature[:-4].split('/')[-1] for feature in extracted_features_files]
+    features_ids = [f[:-4] for f in listdir(STORED_FEATURES_PATH) if f[-4:] == '.npy']
     print('Videos already downloaded: {} videos'.format(len(features_ids)))
     to_remove = []
     for video in dataset.videos:
@@ -41,14 +41,19 @@ def extract_features():
     for video in to_remove:
         dataset.videos.remove(video)
     nb_videos = len(dataset.videos)
+    if end < nb_videos:
+        videos = dataset.videos[start:end]
+    else:
+        videos = dataset.videos[start:]
+    nb_videos = len(videos)
     print('Total number of videos: {} videos'.format(nb_videos))
 
     # creating parallel data loading videos
     print('Creating {} process to fetch video data'.format(nb_workers))
-    data_gen_queue = multiprocessing.Queue()
-    _stop = multiprocessing.Event()
+    data_gen_queue = Queue.Queue()
+    _stop = threading.Event()
     def data_generator_task(index):
-        generator = VideoGenerator(dataset.videos[index:nb_videos:nb_workers],
+        generator = VideoGenerator(videos[index:nb_videos:nb_workers],
             STORED_VIDEOS_PATH, STORED_VIDEOS_EXTENSION, length, input_size)
         while not _stop.is_set():
             try:
@@ -63,11 +68,11 @@ def extract_features():
             except Exception:
                 _stop.set()
                 raise
-    generator_threads = [multiprocessing.Process(target=data_generator_task, args=[i])
+    generator_threads = [threading.Thread(target=data_generator_task, args=[i])
                          for i in range(nb_workers)]
-    for process in generator_threads:
-        process.daemon = True
-        process.start()
+    for thread in generator_threads:
+        thread.daemon = True
+        thread.start()
 
 
     # Loading the model
@@ -113,4 +118,6 @@ def extract_features():
     print('Feature extraction completed')
 
 if __name__ == '__main__':
-    extract_features()
+    start = int(sys.argv[1])
+    end = int(sys.argv[2])
+    extract_features(start, end)
