@@ -35,8 +35,11 @@ var/
 *.avi
 *.mp4
 *.h5
+*.hdf5
 *.log
 
 */tmp/*
 */logs/*
 config.py
+
+.DS_Store

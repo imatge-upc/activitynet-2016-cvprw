@@ -58,7 +58,7 @@
 57	Peeling potatoes
 58	Plastering
 59	Playing beach volleyball
-60	Playing volleyball
+60	Volleyball
 61	Playing blackjack
 62	Playing congas
 63	Playing drums

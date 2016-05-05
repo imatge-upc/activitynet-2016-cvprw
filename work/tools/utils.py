@@ -1,7 +1,6 @@
 import os
 import random
-
-import numpy as np
+import re
 
 import cv2
 
@@ -23,3 +22,9 @@ def get_sample_frame_from_video(videoid, duration, start_time, end_time,
     if not ret:
         raise Exception('Could not read frame {} for video {}'.format(frame_idx, videoid))
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+def get_files_in_dir(path, extension=None):
+    files = os.listdir(path)
+    if not extension:
+        return files
+    return [re.sub(r'\.{}$'.format(extension), '', name) for name in files]
