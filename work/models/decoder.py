@@ -11,7 +11,7 @@ from keras.layers.wrappers import TimeDistributed
 from keras.models import Sequential
 
 
-def RecurrentNetwork(batch_size, sequence_length, summary=False, stateful=True):
+def RecurrentActivityClassificationNetwork(batch_size, sequence_length, summary=False, stateful=True):
     model = Sequential()
     model.add(LSTM(512, batch_input_shape=(batch_size, sequence_length, 4096),
         return_sequences=True, stateful=stateful, name='lstm1'))
@@ -22,6 +22,20 @@ def RecurrentNetwork(batch_size, sequence_length, summary=False, stateful=True):
     if summary:
         print(model.summary())
     return model
+
+
+def RecurrentBinaryActivityDetectionNetwork(batch_size, sequence_length, summary=False, stateful=True):
+    model = Sequential()
+    model.add(LSTM(512, batch_input_shape=(batch_size, sequence_length, 4096),
+        return_sequences=True, stateful=stateful, name='lstm1'))
+    model.add(LSTM(512, batch_input_shape=(batch_size, sequence_length, 4096),
+        return_sequences=True, stateful=stateful, name='lstm2'))
+    model.add(TimeDistributed(Dense(2, activation='softmax'), name='fc-o'))
+
+    if summary:
+        print(model.summary())
+    return model
+
 
 def Classifier(summary=False):
     model = Sequential()

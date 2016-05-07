@@ -2,6 +2,7 @@ from keras.layers.convolutional import (Convolution3D, MaxPooling3D,
                                         ZeroPadding3D)
 from keras.layers.core import Dense, Dropout, Flatten
 from keras.models import Sequential
+from work.environment import C3D_WEIGHTS_PATH
 
 
 def C3D(summary=False):
@@ -66,7 +67,7 @@ def C3D(summary=False):
     model.add(Dense(487, activation='softmax', name='fc8'))
 
     # Load weights
-    model.load_weights('../../models/c3d/c3d-sports1M_weights.h5')
+    model.load_weights(C3D_WEIGHTS_PATH)
 
     if summary:
         print(model.summary())
@@ -135,7 +136,7 @@ def C3D_conv_features(summary=False):
     model.add(Dense(487, activation='softmax', name='fc8'))
 
     # Load weights
-    model.load_weights('../../models/c3d/c3d-sports1M_weights.h5')
+    model.load_weights(C3D_WEIGHTS_PATH)
 
     for _ in range(4):
         model.pop_layer()

@@ -58,137 +58,137 @@
 57	Peeling potatoes
 58	Plastering
 59	Playing beach volleyball
-60	Volleyball
-61	Playing blackjack
-62	Playing congas
-63	Playing drums
-64	Playing ice hockey
-65	Playing pool
-66	Playing rubik cube
-67	Powerbocking
-68	Putting in contact lenses
-69	Putting on shoes
-70	Rafting
-71	Raking leaves
-72	Removing ice from car
-73	Riding bumper cars
-74	River tubing
-75	Rock-paper-scissors
-76	Rollerblading
-77	Roof shingle removal
-78	Rope skipping
-79	Running a marathon
-80	Scuba diving
-81	Sharpening knives
-82	Shuffleboard
-83	Skiing
-84	Slacklining
-85	Snow tubing
-86	Snowboarding
-87	Spread mulch
-88	Sumo
-89	Surfing
-90	Swimming
-91	Swinging at the playground
-92	Table soccer
-93	Throwing darts
-94	Trimming branches or hedges
-95	Tug of war
-96	Using the monkey bar
-97	Using the rowing machine
-98	Wakeboarding
-99	Waterskiing
-100	Waxing skis
-101	Welding
-102	Drinking coffee
-103	Zumba
-104	Doing kickboxing
-105	Doing karate
-106	Tango
-107	Putting on makeup
-108	High jump
-109	Playing bagpipes
-110	Cheerleading
-111	Wrapping presents
-112	Cricket
-113	Clean and jerk
-114	Preparing pasta
-115	Bathing dog
-116	Discus throw
-117	Playing field hockey
-118	Grooming horse
-119	Preparing salad
-120	Playing harmonica
-121	Playing saxophone
-122	Chopping wood
-123	Washing face
-124	Using the pommel horse
-125	Javelin throw
-126	Spinning
-127	Ping-pong
-128	Making a sandwich
-129	Brushing hair
-130	Playing guitarra
-131	Doing step aerobics
-132	Drinking beer
-133	Playing polo
-134	Snatch
-135	Paintball
-136	Long jump
-137	Cleaning windows
-138	Brushing teeth
-139	Playing flauta
-140	Tennis serve with ball bouncing
-141	Bungee jumping
-142	Triple jump
-143	Horseback riding
-144	Layup drill in basketball
-145	Vacuuming floor
-146	Cleaning shoes
-147	Doing nails
-148	Shot put
-149	Fixing bicycle
-150	Washing hands
-151	Ironing clothes
-152	Using the balance beam
-153	Shoveling snow
-154	Tumbling
-155	Using parallel bars
-156	Getting a tattoo
-157	Rock climbing
-158	Smoking hookah
-159	Shaving
-160	Getting a piercing
-161	Springboard diving
-162	Playing squash
-163	Playing piano
-164	Dodgeball
-165	Smoking a cigarette
-166	Sailing
-167	Getting a haircut
-168	Playing lacrosse
-169	Cumbia
-170	Tai chi
-171	Painting
-172	Mowing the lawn
-173	Shaving legs
-174	Walking the dog
-175	Hammer throw
-176	Skateboarding
-177	Polishing shoes
-178	Ballet
-179	Hand washing clothes
-180	Plataform diving
-181	Playing violin
-182	Breakdancing
-183	Windsurfing
-184	Hopscotch
-185	Doing motocross
-186	Mixing drinks
-187	Starting a campfire
-188	Belly dance
-189	Removing curlers
-190	Archery
+60	Playing blackjack
+61	Playing congas
+62	Playing drums
+63	Playing ice hockey
+64	Playing pool
+65	Playing rubik cube
+66	Powerbocking
+67	Putting in contact lenses
+68	Putting on shoes
+69	Rafting
+70	Raking leaves
+71	Removing ice from car
+72	Riding bumper cars
+73	River tubing
+74	Rock-paper-scissors
+75	Rollerblading
+76	Roof shingle removal
+77	Rope skipping
+78	Running a marathon
+79	Scuba diving
+80	Sharpening knives
+81	Shuffleboard
+82	Skiing
+83	Slacklining
+84	Snow tubing
+85	Snowboarding
+86	Spread mulch
+87	Sumo
+88	Surfing
+89	Swimming
+90	Swinging at the playground
+91	Table soccer
+92	Throwing darts
+93	Trimming branches or hedges
+94	Tug of war
+95	Using the monkey bar
+96	Using the rowing machine
+97	Wakeboarding
+98	Waterskiing
+99	Waxing skis
+100	Welding
+101	Drinking coffee
+102	Zumba
+103	Doing kickboxing
+104	Doing karate
+105	Tango
+106	Putting on makeup
+107	High jump
+108	Playing bagpipes
+109	Cheerleading
+110	Wrapping presents
+111	Cricket
+112	Clean and jerk
+113	Preparing pasta
+114	Bathing dog
+115	Discus throw
+116	Playing field hockey
+117	Grooming horse
+118	Preparing salad
+119	Playing harmonica
+120	Playing saxophone
+121	Chopping wood
+122	Washing face
+123	Using the pommel horse
+124	Javelin throw
+125	Spinning
+126	Ping-pong
+127	Making a sandwich
+128	Brushing hair
+129	Playing guitarra
+130	Doing step aerobics
+131	Drinking beer
+132	Playing polo
+133	Snatch
+134	Paintball
+135	Long jump
+136	Cleaning windows
+137	Brushing teeth
+138	Playing flauta
+139	Tennis serve with ball bouncing
+140	Bungee jumping
+141	Triple jump
+142	Horseback riding
+143	Layup drill in basketball
+144	Vacuuming floor
+145	Cleaning shoes
+146	Doing nails
+147	Shot put
+148	Fixing bicycle
+149	Washing hands
+150	Ironing clothes
+151	Using the balance beam
+152	Shoveling snow
+153	Tumbling
+154	Using parallel bars
+155	Getting a tattoo
+156	Rock climbing
+157	Smoking hookah
+158	Shaving
+159	Getting a piercing
+160	Springboard diving
+161	Playing squash
+162	Playing piano
+163	Dodgeball
+164	Smoking a cigarette
+165	Sailing
+166	Getting a haircut
+167	Playing lacrosse
+168	Cumbia
+169	Tai chi
+170	Painting
+171	Mowing the lawn
+172	Shaving legs
+173	Walking the dog
+174	Hammer throw
+175	Skateboarding
+176	Polishing shoes
+177	Ballet
+178	Hand washing clothes
+179	Plataform diving
+180	Playing violin
+181	Breakdancing
+182	Windsurfing
+183	Hopscotch
+184	Doing motocross
+185	Mixing drinks
+186	Starting a campfire
+187	Belly dance
+188	Removing curlers
+189	Archery
+190	Volleyball
 191	Playing water polo
 192	Playing racquetball
 193	Kayaking

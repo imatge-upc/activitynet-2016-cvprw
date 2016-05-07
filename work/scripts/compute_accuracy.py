@@ -1,7 +1,7 @@
 import numpy as np
 
 from work.dataset.activitynet import ActivityNetDataset
-from work.processing.data import get_top_k_predictions
+from work.processing.output import get_top_k_predictions
 
 dataset = ActivityNetDataset(
     videos_path='../../dataset/videos.json',

@@ -172,7 +172,11 @@ class ActivityNetVideo(object):
         self.url = params['url']
         self.subset = params['subset']
         self.resolution = params['resolution']
-        self.duration = params['duration']
+        try:
+            self.duration = params['duration']
+        except:
+            print(video_id)
+            raise
         self.annotations = params['annotations']
         self.label = None
 
@@ -275,3 +279,11 @@ class ActivityNetInstance(AbstractInstance):
     def __init__(self, instance_id, start_frame, output):
         super(ActivityNetInstance, self).__init__(instance_id, output)
         self.start_frame = start_frame
+
+    @property
+    def activity_output(self):
+        return output - 1
+
+    @property
+    def activity_binary_output(self):
+        return 1 if self.output != 0 else 0
