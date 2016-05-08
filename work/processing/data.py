@@ -181,7 +181,10 @@ def load_features_data(videos, timesteps, batch_size, output_mode='all'):
 
     length = 16
     features_size = 4096
-    output_size = 201
+    if output_mode == 'all':
+        output_size = 201
+    elif output_mode == 'binary_activity':
+        output_size = 2
 
     random.shuffle(videos)
 

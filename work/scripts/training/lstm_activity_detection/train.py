@@ -5,7 +5,7 @@ import sys
 from work.dataset.activitynet import ActivityNetDataset
 from work.environment import (ACTIVITY_DETECTION, DATASET_LABELS,
                               DATASET_VIDEOS, STORED_DATASET_PATH,
-                              STORED_FEATURES_PATH, STORED_MODELS_PATH)
+                              STORED_FEATURES_PATH)
 from work.models.decoder import RecurrentBinaryActivityDetectionNetwork
 from work.processing.data import load_features_data
 from work.tools.utils import get_files_in_dir
