@@ -28,7 +28,7 @@ def extract_predicted_outputs():
     for video in videos_to_remove:
         dataset.videos.remove(video)
 
-    videos = dataset.get_subset_videos('validation') + dataset.get_subset_videos('testing')
+    videos = dataset.get_subset_videos('validation')
 
     print('Compiling model')
     model = RecurrentActivityClassificationNetwork(batch_size, timesteps, stateful=True, summary=True)
@@ -48,10 +48,10 @@ def extract_predicted_outputs():
         nb_instances = features.shape[0]
         assert nb_instances == video.num_frames // 16
         features = features.reshape(nb_instances, 1, 4096)
-        Y = model.predict(features, batch_size=batch_size)
+        Y = model.predict_classes(features, batch_size=batch_size)
         model.reset_states()
-        Y = Y.reshape(nb_instances, output_shape)
-        prediction_output_path = ACTIVITY_CLASSIFICATION['predictions_path'] + '/' + video.video_id + '.npy'
+        Y = Y.reshape(nb_instances)
+        prediction_output_path = ACTIVITY_CLASSIFICATION['class_predictions_path'] + '/' + video.video_id + '.npy'
         np.save(prediction_output_path, Y)
 
 
