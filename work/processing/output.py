@@ -49,3 +49,60 @@ def get_temporal_predictions(x, fps=1, clip_length=16):
         pointer += clip_length
 
     return predictions
+
+def get_temporal_predictions_2(x, fps=1, clip_length=16, k=3):
+    results = []
+    predictions = []
+
+    new_prediction = []
+    pointer = 0.
+    for clip in x:
+        if clip != 0 and not new_prediction:
+            new_prediction = [int(pointer)]
+        elif new_prediction and clip == 0:
+            new_prediction.append(int(pointer))
+            predictions.append(new_prediction.copy())
+            new_prediction = []
+        pointer += 1.
+
+    for prediction in predictions:
+        segment = x[prediction[0]:prediction[1]]
+        top_k, scores = get_top_k_predictions_score(segment, k=k)
+        for activity_index in range(len(top_k)):
+            if scores[activity_index] > 0:
+                results.append({
+                    'score': scores[activity_index],
+                    'segment': [i * 16 / fps for i in prediction],
+                    'label': top_k[activity_index]
+                })
+
+    return results
+
+def get_temporal_predictions_3(x, fps=1, clip_length=16, k=1):
+    results = []
+    predictions = []
+
+    start_activity = 0
+    end_activity = 0
+    pointer = 0.
+    previous_activity = 0
+    for clip in x:
+        if clip != 0 and start_activity == 0:
+            start_activity = pointer
+        elif previous_activity != 0 and clip == 0:
+            end_activity = pointer
+        pointer += 1.
+        previous_activity = clip
+
+    top_activity = get_top_k_predictions(x, k=1)
+    if top_activity:
+        results = [{
+            'score': 1,
+            'segment': [
+                start_activity * clip_length / fps,
+                end_activity * clip_length / fps
+            ],
+            'label': top_activity[0]
+        }]
+
+    return results
