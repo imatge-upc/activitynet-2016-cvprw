@@ -1,9 +1,6 @@
 import random
 from enum import Enum
 
-from keras.preprocessing.image import img_to_array, load_img
-from keras.preprocessing.video import video_to_array
-
 
 class DatasetType(Enum):
     IMAGE = 0           # Image data

@@ -194,6 +194,10 @@ class ActivityNetVideo(object):
     def fps(self):
         return self.num_frames / self.duration
 
+    @property
+    def features_file_name(self):
+        return self.video_id + '.npy'
+
     def get_video_by_id(self, video_id):
         vid = None
         for video in self.videos:

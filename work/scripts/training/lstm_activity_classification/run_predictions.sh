@@ -1,2 +1,1 @@
-nohup srun -c2 --mem 30000 --gres=gpu:1 python extract_predictions.py > logs/predictions.log 2>&1 &
-tail -f logs/predictions.log
+srun -u -c2 --mem 2G --gres=gpu:1 python predict.py
