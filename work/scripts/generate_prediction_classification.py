@@ -15,7 +15,7 @@ def main(predictions_path, ouptut_file):
     )
 
     f_predictions = h5py.File(predictions_path, 'r')
-    for subset in ('validation', 'testing'):
+    for subset in ('validation',):
         print('Generating results for {} subset...'.format(subset))
         subset_predictions = f_predictions[subset]
 

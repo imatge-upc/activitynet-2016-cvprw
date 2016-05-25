@@ -319,17 +319,19 @@ def load_features_data(videos, timesteps, batch_size, output_mode='all'):
 
     return data, output
 
-def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode='all', subset='training'):
+def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode='all',
+        subset='training', max_nb_videos=None):
     """ Load all the dataset from the extracted features stored at a hdf5 file
     """
     if output_mode not in ('all', 'binary_activity'):
         raise Exception('output values not valid')
 
-    length = 16
     features_size = 4096
     output_size = 201
 
     videos = f_input[subset].keys()
+    if max_nb_videos and max_nb_videos < len(videos):
+        videos = videos[:max_nb_videos]
     random.shuffle(videos)
 
     sequence_stack = []
@@ -389,17 +391,19 @@ def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode=
 
     return data, output
 
-def load_features_data_h5_feedback(f_input, f_output, timesteps, batch_size, output_mode='all', subset='training'):
+def load_features_data_h5_feedback(f_input, f_output, timesteps, batch_size, output_mode='all',
+        subset='training', max_nb_videos=None):
     """ Load all the dataset from the extracted features stored at a hdf5 file
     """
     if output_mode not in ('all', 'binary_activity'):
         raise Exception('output values not valid')
 
-    length = 16
     features_size = 4096
     output_size = 201
 
     videos = f_input[subset].keys()
+    if max_nb_videos and max_nb_videos < len(videos):
+        videos = videos[:max_nb_videos]
     random.shuffle(videos)
 
     sequence_stack = []
@@ -454,14 +458,14 @@ def load_features_data_h5_feedback(f_input, f_output, timesteps, batch_size, out
 
     data = data[:nb_batches*batch_size*timesteps,:]
     assert np.all(np.any(data, axis=1))
-    data = data.reshape((nb_batches, batch_size, timesteps, features_size))
+    data = data.reshape((nb_batches*batch_size, timesteps, features_size))
 
     prev_output = prev_output[:nb_batches*batch_size*timesteps,:]
     assert np.all(np.any(prev_output, axis=1))
-    prev_output = prev_output.reshape((nb_batches, batch_size, timesteps, output_size+1))
+    prev_output = prev_output.reshape((nb_batches*batch_size, timesteps, output_size+1))
 
     output = output[:nb_batches*batch_size*timesteps,:]
     assert np.all(np.any(output, axis=1))
-    output = output.reshape((nb_batches, batch_size, timesteps, output_size))
+    output = output.reshape((nb_batches*batch_size, timesteps, output_size))
 
     return data, prev_output, output
