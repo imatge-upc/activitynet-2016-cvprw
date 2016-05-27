@@ -118,4 +118,24 @@ def get_temporal_predictions_4(prob, fps=1, clip_length=16):
     activity_tag = np.zeros(activity_prob.shape)
     activity_tag[activity_prob>=threshold] = 1
 
-    for clip in activity_tag:
+    assert activity_tag.ndim == 1
+    padded = np.pad(activity_tag, pad_width=1)
+    dif = padded[1:] - padded [:-1]
+
+    startings = np.arange(dif.size)[dif == 1]
+    endings = np.arange(dif.size)[diff == -1]
+
+    assert startings.size == endings.size
+
+    results = []
+    for s, e in zip(startings, endings):
+        results.append({
+            'score': scores[0],
+            'segment': [
+                s * clip_length / fps,
+                e * clip_length / fps
+            ],
+            'label': top_activity[0]
+        })
+
+    return results
