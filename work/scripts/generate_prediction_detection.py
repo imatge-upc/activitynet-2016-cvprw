@@ -1,11 +1,12 @@
 import json
 import sys
 
+import h5py
 import numpy as np
+from progressbar import ProgressBar
 
 from work.dataset.activitynet import ActivityNetDataset
-from work.processing.output import get_temporal_predictions
-from work.tools.utils import get_files_in_dir
+from work.processing.output import get_temporal_predictions_3
 
 
 def main(predictions_path, output_file):
@@ -13,32 +14,38 @@ def main(predictions_path, output_file):
         videos_path='../../dataset/videos.json',
         labels_path='../../dataset/labels.txt'
     )
-    extracted_features = get_files_in_dir('../../downloads/predictions/lstm_activity_classification/v1/classes', extension='npy')
-    # Remove the videos which features hasn't been extracted
-    videos_to_remove = []
-    for video in dataset.videos:
-        if video.video_id not in extracted_features:
-            videos_to_remove.append(video)
-    for video in videos_to_remove:
-        dataset.videos.remove(video)
 
-    videos = dataset.get_subset_videos('validation')
+    f_predictions = h5py.File(predictions_path, 'r')
+    for subset in ('validation',):
+        print('Generating results for {} subset...'.format(subset))
+        subset_predictions = f_predictions[subset]
 
+        progbar = ProgressBar(max_value=len(subset_predictions.keys()))
+        with open('evaluation/data/result_template_{}.json'.format(subset), 'r') as f:
+            results = json.load(f)
 
-    with open('evaluation/data/result_template_validation.json', 'r') as f:
-        results = json.load(f)
-    for video in videos:
-        prediction_path = predictions_path+video.video_id+'.npy'
-        output = np.load(prediction_path)
-        predictions = get_temporal_predictions(output, fps=video.fps, clip_length=16)
-        for p in predictions:
-            label = dataset.labels[p['label']][1]
-            p['label'] = label
+        count = 0
+        progbar.update(0)
+        for video in dataset.get_subset_videos(subset):
+            if video.video_id not in subset_predictions.keys():
+                continue
+            prediction = subset_predictions[video.video_id]
+            class_predictions = np.argmax(prediction, axis=1)
+            temporal_predictions = get_temporal_predictions_3(class_predictions, video.fps)
+            for p in temporal_predictions:
+                label = dataset.labels[p['label']][1]
+                p['label'] = label
 
-        results['results'][video.video_id] = predictions
+            results['results'][video.video_id] = temporal_predictions
+            count += 1
+            progbar.update(count)
 
-    with open(output_file, 'w') as f:
-        json.dump(results, f)
+        progbar.finish()
+        with open(output_file.format(subset), 'w') as f:
+            json.dump(results, f)
+
+    f_predictions.close()
+
 
 if __name__ == '__main__':
     predictions_path = str(sys.argv[1])

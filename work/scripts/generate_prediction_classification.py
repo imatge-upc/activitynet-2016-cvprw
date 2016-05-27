@@ -46,6 +46,8 @@ def main(predictions_path, ouptut_file):
         with open(output_file.format(subset), 'w') as f:
             json.dump(results, f)
 
+    f_predictions.close()
+
 
 if __name__ == '__main__':
     predictions_path = str(sys.argv[1])

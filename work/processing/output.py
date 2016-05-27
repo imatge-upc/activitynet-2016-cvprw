@@ -93,6 +93,8 @@ def get_temporal_predictions_3(x, fps=1, clip_length=16, k=1):
             end_activity = pointer
         pointer += 1.
         previous_activity = clip
+    if previous_activity != 0:
+        end_activity = pointer
 
     top_activity = get_top_k_predictions(x, k=1)
     if top_activity:
@@ -106,3 +108,14 @@ def get_temporal_predictions_3(x, fps=1, clip_length=16, k=1):
         }]
 
     return results
+
+def get_temporal_predictions_4(prob, fps=1, clip_length=16):
+    threshold = 0.2
+    classes = np.argmax(prob, axis=1)
+    top_activity, scores = get_top_k_predictions_score(classes, k=1)
+
+    activity_prob = 1 - prob[:,0]
+    activity_tag = np.zeros(activity_prob.shape)
+    activity_tag[activity_prob>=threshold] = 1
+
+    for clip in activity_tag:
