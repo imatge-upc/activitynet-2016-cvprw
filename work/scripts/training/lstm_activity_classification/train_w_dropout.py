@@ -9,11 +9,11 @@ from keras.optimizers import RMSprop
 
 
 def train():
-    nb_experiment = 8
+    nb_experiment = 9
     batch_size = 256
     timesteps = 20
     epochs = 200
-    lr = 1e-6
+    lr = 1e-5
 
     sys.stdout = open('./logs/training_e{:02d}.log'.format(nb_experiment), 'w')
 
@@ -49,11 +49,15 @@ def train():
     print('Loading Validation Data...')
     X_val = f_dataset['X_features_val']
     Y_val = f_dataset['Y_val']
+    print('Loading Sample Weights...')
+    sample_weights = f_dataset['sample_weights'][...]
+    sample_weights[sample_weights != 1] = .3
     print('Loading Data Finished!')
     print('Input shape: {}'.format(X.shape))
     print('Output shape: {}\n'.format(Y.shape))
     print('Validation Input shape: {}'.format(X_val.shape))
     print('Validation Output shape: {}'.format(Y_val.shape))
+    print('Sample Weights shape: {}'.format(sample_weights.shape))
 
     for i in range(1, epochs+1):
         print('Epoch {}/{}'.format(i, epochs))
@@ -61,6 +65,7 @@ def train():
                   Y,
                   batch_size=batch_size,
                   validation_data=(X_val, Y_val),
+                  sample_weight=sample_weights,
                   verbose=1,
                   nb_epoch=1,
                   shuffle=False)

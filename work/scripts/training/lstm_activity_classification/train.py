@@ -3,17 +3,30 @@ import sys
 
 import h5py
 
-from keras.layers import LSTM, BatchNormalization, Dense, Input, TimeDistributed
+from keras.layers import LSTM, BatchNormalization, Dense, Input, TimeDistributed, Dropout
 from keras.models import Model
 from keras.optimizers import RMSprop
+from keras.callbacks import Callback
 
+
+class AccuracyComputation(Callback):
+
+    def __init__(self, model, validation_data):
+        self.model = model
+        self.input, self.output = validation_data
+        self.accuracies = []
+
+    def on_epoch_end(self, logs={}):
+        for val_features in self.input:
+            predictions = model.predict(val_features)
+            
 
 def train():
-    nb_experiment = 2
+    nb_experiment = 10
     batch_size = 256
     timesteps = 20 # Entre 16 i 30
     epochs = 100
-    lr = 0.0001
+    lr = 1e-5
 
     sys.stdout = open('./logs/training_e{:02d}.log'.format(nb_experiment), 'w')
 
@@ -28,15 +41,30 @@ def train():
 
     print('Compiling model')
     input_features = Input(batch_shape=(batch_size, timesteps, 4096,), name='features')
-    input_normalized = BatchNormalization(name='normalization')(input_features)
-    lstm1 = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_normalized)
-    lstm2 = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm1)
-    output = TimeDistributed(Dense(201, activation='softmax'), name='fc')(lstm2)
+    normalization = BatchNormalization(name='normalization')
+    input_normalized = normalization(input_features)
+    input_dropout = Dropout(p=.5)(input_normalized)
+    lstm = LSTM(512, return_sequences=True, stateful=True, name='lstm1')
+    lstm_output = lstm(input_dropout)
+    lstm_dropout = Dropout(p=.5)(lstm_output)
+    softmax = TimeDistributed(Dense(201, activation='softmax'), name='fc')
+    output = softmax(lstm_dropout)
 
     model = Model(input=input_features, output=output)
     model.summary()
     rmsprop = RMSprop(lr=lr)
     model.compile(loss='categorical_crossentropy', optimizer=rmsprop, metrics=['accuracy'])
+
+    # validation model
+    input_features_val = Input(batch_size=(1, 1, 4096,), name='features_val')
+    input_normalized_val = normalization(input_features_val)
+    input_dropout_val = Dropout(p=.5)(input_normalized_val)
+    lstm_output_val = lstm(input_dropout_val)
+    lstm_dropout = Dropout(p=.5)(lstm_output_val)
+    output_val = softmax(lstm_dropout)
+    model_val = Model(input=input_features_val, output=output_val)
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+    model.summary()
     print('Model Compiled!')
 
     print('Loading Training Data...')

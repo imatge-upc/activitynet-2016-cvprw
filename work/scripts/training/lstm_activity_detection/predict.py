@@ -7,11 +7,11 @@ from work.environment import FEATURES_DATASET_FILE
 
 
 def extract_predicted_outputs():
-    experiment = 9
-    nb_epoch = 100
+    experiment = 6
+    nb_epoch = 150
     subsets = ('validation',)
 
-    weights_path = 'model_snapshot/lstm_activity_classification_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
+    weights_path = 'model_snapshot/lstm_activity_detection_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
         experiment=experiment, nb_epoch=nb_epoch
     )
     store_file = './predictions/predictions_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
@@ -21,15 +21,14 @@ def extract_predicted_outputs():
     print('Compiling model')
     input_features = Input(batch_shape=(1, 1, 4096,), name='features')
     input_normalized = BatchNormalization(name='normalization')(input_features)
-    input_dropout = Dropout(p=0.5)(input_normalized)
-    lstm1 = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
-    #lstm2 = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm1)
-    output_dropout = Dropout(p=0.5)(lstm1)
-    output = TimeDistributed(Dense(201, activation='softmax'), name='fc')(output_dropout)
+    input_dropout = Dropout(p=.5)(input_normalized)
+    lstm = LSTM(256, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
+    detection = TimeDistributed(Dense(1, activation='sigmoid'), name='activity_detection')(lstm)
 
-    model = Model(input=input_features, output=output)
+    model = Model(input=input_features, output=detection)
     model.load_weights(weights_path)
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+    model.summary()
+    model.compile(loss='binary_crossentropy', optimizer='rmsprop')
     print('Model Compiled!')
 
     h5_dataset = h5py.File(FEATURES_DATASET_FILE, 'r')
@@ -52,7 +51,7 @@ def extract_predicted_outputs():
             video_features = video_features.reshape(nb_instances, 1, 4096)
             model.reset_states()
             Y = model.predict(video_features, batch_size=1)
-            Y = Y.reshape(nb_instances, 201)
+            Y = Y.reshape(nb_instances)
 
             output_subset.create_dataset(video_id, data=Y)
             count += 1

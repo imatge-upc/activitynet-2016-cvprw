@@ -1,0 +1,6 @@
+[INIT] Loaded annotations from validation subset.
+	Number of ground truth instances: 7510
+	Number of predictions: 15617
+	Fixed threshold for tiou score: 0.5
+[RESULTS] Performance on ActivityNet detection task.
+	Mean Average Precision: 0.099224946028

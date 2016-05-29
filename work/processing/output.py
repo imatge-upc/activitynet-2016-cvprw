@@ -17,7 +17,7 @@ def get_top_k_predictions(x, k=3):
 def get_top_k_predictions_score(x, k=3):
     counts = np.bincount(x)
     top_k = np.argsort(counts[1:])[::-1][:k] + 1
-    scores = counts[top_k]/np.sum(counts[1:])
+    scores = counts[top_k]/np.sum(counts[1:]).astype(np.float32)
     return top_k, scores
 
 def get_video_ground_truth(video):
@@ -109,7 +109,7 @@ def get_temporal_predictions_3(x, fps=1, clip_length=16, k=1):
 
     return results
 
-def get_temporal_predictions_4(prob, fps=1, clip_length=16):
+def get_temporal_predictions_4(prob, fps=1, clip_length=16.):
     threshold = 0.2
     classes = np.argmax(prob, axis=1)
     top_activity, scores = get_top_k_predictions_score(classes, k=1)
@@ -119,15 +119,54 @@ def get_temporal_predictions_4(prob, fps=1, clip_length=16):
     activity_tag[activity_prob>=threshold] = 1
 
     assert activity_tag.ndim == 1
-    padded = np.pad(activity_tag, pad_width=1)
+    padded = np.pad(activity_tag, pad_width=1, mode='constant')
     dif = padded[1:] - padded [:-1]
 
-    startings = np.arange(dif.size)[dif == 1]
-    endings = np.arange(dif.size)[diff == -1]
+    indexes = np.arange(dif.size)
+    startings = indexes[dif == 1]
+    endings = indexes[dif == -1]
 
     assert startings.size == endings.size
 
     results = []
+    if not top_activity:
+        return results
+    for s, e in zip(startings, endings):
+        results.append({
+            'score': scores[0],
+            'segment': [
+                s * clip_length / fps,
+                e * clip_length / fps
+            ],
+            'label': top_activity[0]
+        })
+
+    return results
+
+def get_temporal_predictions_5(prob, fps=1, clip_length=16.):
+    threshold = 0.2
+    classes = np.argmax(prob, axis=1)
+    top_activity, scores = get_top_k_predictions_score(classes, k=1)
+
+    results = []
+    if not top_activity:
+        return results
+
+    activity_prob = prob[:,top_activity[0]]
+
+    activity_tag = np.zeros(activity_prob.shape)
+    activity_tag[activity_prob>=threshold] = 1
+
+    assert activity_tag.ndim == 1
+    padded = np.pad(activity_tag, pad_width=1, mode='constant')
+    dif = padded[1:] - padded [:-1]
+
+    indexes = np.arange(dif.size)
+    startings = indexes[dif == 1]
+    endings = indexes[dif == -1]
+
+    assert startings.size == endings.size
+
     for s, e in zip(startings, endings):
         results.append({
             'score': scores[0],

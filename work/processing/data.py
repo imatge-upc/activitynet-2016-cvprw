@@ -328,6 +328,8 @@ def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode=
 
     features_size = 4096
     output_size = 201
+    mfcc_size = 80
+    spec_size = 20
 
     videos = f_input[subset].keys()
     if max_nb_videos and max_nb_videos < len(videos):
@@ -353,12 +355,14 @@ def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode=
     nb_batches_long = max_sequence // timesteps + 1
     nb_batches = min_sequence // timesteps
 
-    data = np.zeros((nb_batches_long*batch_size*timesteps, features_size))
+    video_features = np.zeros((nb_batches_long*batch_size*timesteps, features_size))
+    mfcc_features = np.zeros((nb_batches_long*batch_size*timesteps, mfcc_size))
+    spec_features = np.zeros((nb_batches_long*batch_size*timesteps, spec_size))
     output = np.zeros((nb_batches_long*batch_size*timesteps, output_size))
     index = np.arange(nb_batches_long*batch_size*timesteps)
 
     for i in range(batch_size):
-        batch_index = index//timesteps % batch_size == i
+        batch_index = index // timesteps % batch_size == i
 
         print('Putting data on position {} of each batch'.format(i))
         progbar = ProgressBar(max_value=nb_clips_stack[i])
@@ -370,7 +374,7 @@ def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode=
 
             video_index = index[batch_index][pos:pos+nb_instances]
 
-            data[video_index,:] = features
+            video_features[video_index,:] = features
 
             output_classes = f_output[subset][video_id][...]
             assert nb_instances == output_classes.shape[0]
@@ -381,15 +385,15 @@ def load_features_data_h5(f_input, f_output, timesteps, batch_size, output_mode=
 
         progbar.finish()
 
-    data = data[:nb_batches*batch_size*timesteps,:]
-    assert np.all(np.any(data, axis=1))
-    data = data.reshape((nb_batches*batch_size, timesteps, features_size))
+    video_features = video_features[:nb_batches*batch_size*timesteps,:]
+    assert np.all(np.any(video_features, axis=1))
+    video_features = video_features.reshape((nb_batches*batch_size, timesteps, features_size))
 
     output = output[:nb_batches*batch_size*timesteps,:]
     assert np.all(np.any(output, axis=1))
     output = output.reshape((nb_batches*batch_size, timesteps, output_size))
 
-    return data, output
+    return video_features, output
 
 def load_features_data_h5_feedback(f_input, f_output, timesteps, batch_size, output_mode='all',
         subset='training', max_nb_videos=None):
