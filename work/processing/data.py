@@ -4,7 +4,6 @@ import threading
 import time
 
 import numpy as np
-from memory_profiler import profile
 from progressbar import ProgressBar
 
 # from keras.preprocessing.image import (horizontal_flip, random_rotation,

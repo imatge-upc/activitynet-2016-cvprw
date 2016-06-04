@@ -9,7 +9,7 @@ from keras.optimizers import RMSprop
 
 
 def train():
-    nb_experiment = 9
+    nb_experiment = 11
     batch_size = 256
     timesteps = 20
     epochs = 200
@@ -31,7 +31,7 @@ def train():
     input_normalized = BatchNormalization(name='normalization')(input_features)
     input_dropout = Dropout(p=0.5)(input_normalized)
     lstm1 = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
-    #lstm2 = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm1)
+    # lstm2 = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm1)
     output_dropout = Dropout(p=0.5)(lstm1)
     output = TimeDistributed(Dense(201, activation='softmax'), name='fc')(output_dropout)
 
@@ -76,6 +76,8 @@ def train():
             save_name = store_weights_file.format(nb_experiment=nb_experiment, epoch=i)
             save_path = os.path.join(store_weights_root, save_name)
             model.save_weights(save_path)
+        if i == 40:
+            model.optimizer.lr.set_value(1e-6)
 
 if __name__ == '__main__':
     train()

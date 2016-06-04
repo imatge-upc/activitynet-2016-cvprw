@@ -7,8 +7,8 @@ from work.environment import FEATURES_DATASET_FILE
 
 
 def extract_predicted_outputs():
-    experiment = 12
-    nb_epoch = 30
+    experiment = 9
+    nb_epoch = 100
     subsets = ('validation',)
 
     weights_path = 'model_snapshot/lstm_activity_classification_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
@@ -22,15 +22,13 @@ def extract_predicted_outputs():
     input_features = Input(batch_shape=(1, 1, 4096,), name='features')
     input_normalized = BatchNormalization(name='normalization')(input_features)
     input_dropout = Dropout(p=0.5)(input_normalized)
-    lstm1 = LSTM(1024, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
-    lstm2 = LSTM(1024, return_sequences=True, stateful=True, name='lstm2')(lstm1)
-    lstm3 = LSTM(1024, return_sequences=True, stateful=True, name='lstm3')(lstm2)
-    output_dropout = Dropout(p=0.5)(lstm3)
+    lstm1 = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
+    #lstm2 = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm1)
+    output_dropout = Dropout(p=0.5)(lstm1)
     output = TimeDistributed(Dense(201, activation='softmax'), name='fc')(output_dropout)
 
     model = Model(input=input_features, output=output)
     model.load_weights(weights_path)
-    model.summary()
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
     print('Model Compiled!')
 
