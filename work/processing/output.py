@@ -109,8 +109,7 @@ def get_temporal_predictions_3(x, fps=1, clip_length=16, k=1):
 
     return results
 
-def get_temporal_predictions_4(prob, fps=1, clip_length=16.):
-    threshold = 0.2
+def get_temporal_predictions_4(prob, fps=1, clip_length=16., threshold=.2):
     classes = np.argmax(prob, axis=1)
     top_activity, scores = get_top_k_predictions_score(classes, k=1)
 
@@ -178,3 +177,15 @@ def get_temporal_predictions_5(prob, fps=1, clip_length=16.):
         })
 
     return results
+
+
+def smoothing(x, k=5):
+    l = len(x)
+    s = np.arange(-k, l-k)
+    e = np.arange(k, l+k)
+    s[s<0] = 0
+    e[e>=l] = l-1
+    y = np.zeros(x.shape)
+    for i in range(l):
+        y[i] = np.mean(x[s[i]:e[i]], axis=0)
+    return y

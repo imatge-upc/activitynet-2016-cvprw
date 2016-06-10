@@ -2,14 +2,14 @@ import h5py
 import numpy as np
 from progressbar import ProgressBar
 
-from keras.layers import LSTM, BatchNormalization, Dense, Input, TimeDistributed, merge
+from keras.layers import LSTM, BatchNormalization, Dense, Dropout, Input, TimeDistributed, merge
 from keras.models import Model
 from work.environment import FEATURES_DATASET_FILE
 
 
 def extract_predicted_outputs():
-    experiment = 1
-    nb_epoch = 100
+    experiment = 4
+    nb_epoch = 150
     subsets = ('validation',)
     vid_size = 4096
     mfcc_size = 80
@@ -34,10 +34,11 @@ def extract_predicted_outputs():
     input_spec_normalized = BatchNormalization(name='spec_normalization')(input_spec_features)
     input_merged = merge([input_video_normalized, input_mfcc_normalized, input_spec_normalized],
         mode='concat', concat_axis=-1)
-
-    lstm = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_merged)
-    # lstm_output = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm_mid)
-    output = TimeDistributed(Dense(201, activation='softmax'), name='softmax')(lstm)
+    input_dropout = Dropout(p=.5)(input_merged)
+    lstm = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
+    #lstm_output = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm)
+    lstm_dropout = Dropout(p=.5)(lstm)
+    output = TimeDistributed(Dense(201, activation='softmax'), name='softmax')(lstm_dropout)
 
     model = Model(input=[input_video_features, input_mfcc_features, input_spec_features],
         output=output)
@@ -54,20 +55,10 @@ def extract_predicted_outputs():
 
     for subset in subsets:
         videos = h5_dataset[subset].keys()
-
-        videos_not_features = []
-        for v in videos:
-            if v not in h5_dataset_audio['mfcc'].keys():
-                videos_not_features.append(v)
-            elif v not in h5_dataset_audio['spec'].keys():
-                videos_not_features.append(v)
-
-        videos_not_features = list(set(videos_not_features))
-        for vid in videos_not_features:
-            videos.remove(vid)
+        videos = set(videos).intersection(h5_dataset_audio['mfcc'].keys())
+        videos = videos.intersection(h5_dataset_audio['spec'].keys())
+        videos = list(videos)
         videos_ids.append(videos)
-
-
 
     total_nb = 0
     for x in videos_ids:

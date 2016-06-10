@@ -8,14 +8,14 @@ from work.environment import FEATURES_DATASET_FILE
 
 
 def extract_predicted_outputs():
-    experiment = 3
-    nb_epoch = 50
+    experiment = 1
+    nb_epoch = 70
     subsets = ('validation',)
     vid_size = 4096
     mfcc_size = 80
     spec_size = 8
 
-    weights_path = 'model_snapshot/lstm_activity_classification_feedback_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
+    weights_path = 'model_snapshot/lstm_semisupervised_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
         experiment=experiment, nb_epoch=nb_epoch
     )
     store_file = './predictions/predictions_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(

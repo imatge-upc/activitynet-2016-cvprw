@@ -4,17 +4,21 @@ import sys
 import h5py
 
 from keras.layers import LSTM, BatchNormalization, Dense, Dropout, Input, TimeDistributed, merge
-from keras.models import Model
+from keras.models import Model, model_from_yaml
 from keras.optimizers import RMSprop
 
 
 def train():
-    nb_experiment = 3
+    nb_experiment = 2
     batch_size = 256
     timesteps = 20 # Entre 16 i 30
     epochs = 200
-    lr = 1e-5
+    lr = 1e-6
     background_weight = 0.3
+
+    # Pretraining
+    pre_nb_experiment = 3
+    pre_epoch = 80
 
     validation_batches = 30
     video_size = 4096
@@ -29,12 +33,28 @@ def train():
     print('epochs: {}'.format(epochs))
     print('learning rate: {}'.format(lr))
     print('background_weight: {}\n'.format(background_weight))
+    print('pretrained experiment: {}'.format(pre_nb_experiment))
+    print('pretrained epoch: {}'.format(pre_epoch))
 
     store_weights_root = './model_snapshot'
-    store_weights_file = 'lstm_activity_classification_feedback_{nb_experiment:02d}_e{epoch:03}.hdf5'
+    store_weights_file = 'lstm_semisupervised_{nb_experiment:02d}_e{epoch:03}.hdf5'
     model_architecture_file = './model_architecture/model_architecture_{experiment:02d}.yaml'.format(experiment=nb_experiment)
+    pre_trained_model_architecture = './model_architecture/model_architecture_encoder_{experiment:02d}.yaml'.format(experiment=pre_nb_experiment)
+    pre_trained_model_weights = 'lstm_encoder_{nb_experiment:02d}_e{epoch:03}.hdf5'.format(nb_experiment=pre_nb_experiment, epoch=pre_epoch)
+    pre_trained_weights = os.path.join(store_weights_root, pre_trained_model_weights)
 
     print('Compiling model')
+    # with open(pre_trained_model_architecture, 'r') as f:
+    #     autoencoder_model = model_from_yaml(f.read())
+    # print('Autoncoder topology')
+
+    with h5py.File(pre_trained_weights, 'r') as weights:
+        decoder_weights = [weights['output']['dense_1_W'][...], weights['output']['dense_1_b'][...]]
+    # pretreined_weights = h5py.Fil
+    # autoencoder_model.summary()
+    # autoencoder_model.set_weights(pre_trained_weights)
+    # decoder_weights = autoencoder_model.get_layer('output').get_weights()
+
     input_video_features = Input(batch_shape=(batch_size, timesteps, video_size,),
         name='video_features')
     input_video_normalized = BatchNormalization(name='video_normalization')(input_video_features)
@@ -52,7 +72,8 @@ def train():
     lstm1 = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
     # lstm2 = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm1)
     output_dropout = Dropout(p=0.5)(lstm1)
-    output = TimeDistributed(Dense(201, activation='softmax'), name='fc')(output_dropout)
+    fc_layer = Dense(201, activation='softmax', weights=decoder_weights)
+    output = TimeDistributed(fc_layer, name='fc')(output_dropout)
     model = Model(input=[input_video_features, input_mfcc_features, input_spec_features, input_previous_output], output=output)
 
     model.summary()
@@ -63,7 +84,7 @@ def train():
     print('Model Compiled!')
 
     print('Loading Training Data...')
-    f_dataset = h5py.File('../dataset/stateful_dataset_with_audio_feedback.hdf5', 'r')
+    f_dataset = h5py.File('../dataset/stateful_dataset_with_audio_feedback_2.hdf5', 'r')
     video_features = f_dataset['training']['vid_features']
     mfcc_features = f_dataset['training']['mfcc_features']
     spec_features = f_dataset['training']['spec_features']

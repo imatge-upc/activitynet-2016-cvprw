@@ -9,7 +9,7 @@ from work.environment import FEATURES_DATASET_FILE
 def extract_predicted_outputs():
     experiment = 9
     nb_epoch = 100
-    subsets = ('validation',)
+    subsets = ('testing',)
 
     weights_path = 'model_snapshot/lstm_activity_classification_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(
         experiment=experiment, nb_epoch=nb_epoch
@@ -33,7 +33,7 @@ def extract_predicted_outputs():
     print('Model Compiled!')
 
     h5_dataset = h5py.File(FEATURES_DATASET_FILE, 'r')
-    h5_predict = h5py.File(store_file, 'w')
+    h5_predict = h5py.File(store_file, 'r+')
 
     total_nb = 0
     for subset in subsets:

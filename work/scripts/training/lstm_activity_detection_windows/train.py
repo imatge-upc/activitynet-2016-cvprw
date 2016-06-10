@@ -4,7 +4,7 @@ import sys
 import h5py
 import numpy as np
 
-from keras.layers import LSTM, BatchNormalization, Dense, Dropout, Input, TimeDistributed
+from keras.layers import LSTM, BatchNormalization, Dense, Dropout, Input
 from keras.models import Model
 from keras.optimizers import RMSprop
 

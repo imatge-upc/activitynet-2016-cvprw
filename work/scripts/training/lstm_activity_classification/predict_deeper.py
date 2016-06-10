@@ -7,8 +7,8 @@ from work.environment import FEATURES_DATASET_FILE
 
 
 def extract_predicted_outputs():
-    experiment = 12
-    nb_epoch = 30
+    experiment = 13
+    nb_epoch = 200
     subsets = ('validation',)
 
     weights_path = 'model_snapshot/lstm_activity_classification_{experiment:02d}_e{nb_epoch:03d}.hdf5'.format(

@@ -2,11 +2,10 @@ import json
 import sys
 
 import h5py
-import numpy as np
 from progressbar import ProgressBar
 
 from work.dataset.activitynet import ActivityNetDataset
-from work.processing.output import get_temporal_predictions_5
+from work.processing.output import get_temporal_predictions_4, smoothing
 
 
 def main(predictions_path, output_file):
@@ -31,7 +30,8 @@ def main(predictions_path, output_file):
                 continue
             prediction = subset_predictions[video.video_id]
             #class_predictions = np.argmax(prediction, axis=1)
-            temporal_predictions = get_temporal_predictions_5(prediction, fps=video.fps)
+            prediction_smoothed = smoothing(prediction)
+            temporal_predictions = get_temporal_predictions_4(prediction_smoothed, fps=video.fps)
             for p in temporal_predictions:
                 label = dataset.labels[p['label']][1]
                 p['label'] = label

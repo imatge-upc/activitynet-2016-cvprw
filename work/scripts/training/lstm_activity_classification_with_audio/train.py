@@ -3,16 +3,16 @@ import sys
 
 import h5py
 
-from keras.layers import LSTM, BatchNormalization, Dense, Input, TimeDistributed, merge
+from keras.layers import LSTM, BatchNormalization, Dense, Dropout, Input, TimeDistributed, merge
 from keras.models import Model
 from keras.optimizers import RMSprop
 
 
 def train():
-    nb_experiment = 1
+    nb_experiment = 4
     batch_size = 256
     timesteps = 20
-    epochs = 120
+    epochs = 200
     lr = 1e-5
     background_weight = 0.3
 
@@ -32,7 +32,7 @@ def train():
 
     store_weights_root = './model_snapshot'
     store_weights_file = 'lstm_activity_classification_{nb_experiment:02d}_e{epoch:03}.hdf5'
-
+    model_architecture_file = './model_architecture/model_architecture_{experiment:02d}.yaml'.format(experiment=nb_experiment)
     input_video_features = Input(batch_shape=(batch_size, timesteps, video_size,),
         name='video_features')
     input_video_normalized = BatchNormalization(name='video_normalization')(input_video_features)
@@ -44,14 +44,17 @@ def train():
     input_spec_normalized = BatchNormalization(name='spec_normalization')(input_spec_features)
     input_merged = merge([input_video_normalized, input_mfcc_normalized, input_spec_normalized],
         mode='concat', concat_axis=-1)
-
-    lstm = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_merged)
-    # lstm_output = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm_mid)
-    output = TimeDistributed(Dense(201, activation='softmax'), name='softmax')(lstm)
+    input_dropout = Dropout(p=.5)(input_merged)
+    lstm = LSTM(512, return_sequences=True, stateful=True, name='lstm1')(input_dropout)
+    #lstm_output = LSTM(512, return_sequences=True, stateful=True, name='lstm2')(lstm)
+    lstm_dropout = Dropout(p=.5)(lstm)
+    output = TimeDistributed(Dense(201, activation='softmax'), name='softmax')(lstm_dropout)
 
     model = Model(input=[input_video_features, input_mfcc_features, input_spec_features],
         output=output)
     model.summary()
+    with open(model_architecture_file, 'w') as f:
+        f.write(model.to_yaml())
     rmsprop = RMSprop(lr=lr)
     model.compile(loss='categorical_crossentropy', optimizer=rmsprop, metrics=['accuracy'],
         sample_weight_mode='temporal')

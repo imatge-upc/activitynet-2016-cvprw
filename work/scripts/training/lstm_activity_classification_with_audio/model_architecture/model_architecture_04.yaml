@@ -1,0 +1,110 @@
+class_name: Model
+config:
+  input_layers:
+  - [video_features, 0, 0]
+  - [mfcc_features, 0, 0]
+  - [spec_features, 0, 0]
+  layers:
+  - class_name: InputLayer
+    config:
+      batch_input_shape: !!python/tuple [256, 20, 80]
+      input_dtype: float32
+      name: mfcc_features
+    inbound_nodes: []
+    name: mfcc_features
+  - class_name: InputLayer
+    config:
+      batch_input_shape: !!python/tuple [256, 20, 8]
+      input_dtype: float32
+      name: spec_features
+    inbound_nodes: []
+    name: spec_features
+  - class_name: InputLayer
+    config:
+      batch_input_shape: !!python/tuple [256, 20, 4096]
+      input_dtype: float32
+      name: video_features
+    inbound_nodes: []
+    name: video_features
+  - class_name: BatchNormalization
+    config: {axis: -1, epsilon: 1.0e-06, mode: 0, momentum: 0.9, name: mfcc_normalization,
+      trainable: true}
+    inbound_nodes:
+    - - [mfcc_features, 0, 0]
+    name: mfcc_normalization
+  - class_name: BatchNormalization
+    config: {axis: -1, epsilon: 1.0e-06, mode: 0, momentum: 0.9, name: spec_normalization,
+      trainable: true}
+    inbound_nodes:
+    - - [spec_features, 0, 0]
+    name: spec_normalization
+  - class_name: BatchNormalization
+    config: {axis: -1, epsilon: 1.0e-06, mode: 0, momentum: 0.9, name: video_normalization,
+      trainable: true}
+    inbound_nodes:
+    - - [video_features, 0, 0]
+    name: video_normalization
+  - class_name: Merge
+    config:
+      concat_axis: -1
+      dot_axes: [-1, -1]
+      mode: concat
+      mode_type: raw
+      name: merge_1
+      output_shape: null
+      output_shape_type: raw
+    inbound_nodes:
+    - - [video_normalization, 0, 0]
+      - [mfcc_normalization, 0, 0]
+      - [spec_normalization, 0, 0]
+    name: merge_1
+  - class_name: Dropout
+    config: {name: dropout_1, p: 0.5, trainable: true}
+    inbound_nodes:
+    - - [merge_1, 0, 0]
+    name: dropout_1
+  - class_name: LSTM
+    config:
+      U_regularizer: null
+      W_regularizer: null
+      activation: tanh
+      b_regularizer: null
+      batch_input_shape: !!python/tuple [256, 20, 4184]
+      consume_less: cpu
+      dropout_U: 0.0
+      dropout_W: 0.0
+      forget_bias_init: one
+      go_backwards: false
+      init: glorot_uniform
+      inner_activation: hard_sigmoid
+      inner_init: orthogonal
+      name: lstm1
+      output_dim: 512
+      return_sequences: true
+      stateful: true
+      trainable: true
+      unroll: false
+    inbound_nodes:
+    - - [dropout_1, 0, 0]
+    name: lstm1
+  - class_name: Dropout
+    config: {name: dropout_2, p: 0.5, trainable: true}
+    inbound_nodes:
+    - - [lstm1, 0, 0]
+    name: dropout_2
+  - class_name: TimeDistributed
+    config:
+      layer:
+        class_name: Dense
+        config: {W_constraint: null, W_regularizer: null, activation: softmax, activity_regularizer: null,
+          b_constraint: null, b_regularizer: null, bias: true, init: glorot_uniform,
+          input_dim: null, name: dense_1, output_dim: 201, trainable: true}
+      name: softmax
+      trainable: true
+    inbound_nodes:
+    - - [dropout_2, 0, 0]
+    name: softmax
+  name: model_1
+  output_layers:
+  - [softmax, 0, 0]
+keras_version: 1.0.3
