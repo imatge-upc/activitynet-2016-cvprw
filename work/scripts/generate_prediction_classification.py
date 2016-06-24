@@ -28,11 +28,12 @@ def main(predictions_path, ouptut_file):
         for video_id in subset_predictions.keys():
             predictions = subset_predictions[video_id]
             class_means = np.mean(predictions, axis=0)
-            top_3 = np.argsort(class_means[1:])[::-1][:3] + 1
-            scores = class_means[top_3]/np.sum(class_means[1:])
+            top_3 = np.argsort(class_means[1:])[::-1][:3]
+            class_means = class_means[1:] / np.sum(class_means[1:])
+            scores = class_means[top_3]
             result = []
             for index, score in zip(top_3, scores):
-                label = dataset.labels[index][1]
+                label = dataset.labels[index+1][1]
                 if score > 0:
                     result.append({
                         'score': score,
