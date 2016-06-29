@@ -43,3 +43,6 @@ var/
 config.py
 
 .DS_Store
+.isort.cfg
+
+venv
