@@ -3,19 +3,13 @@ import multiprocessing
 import os
 import sys
 import time
+import traceback
 
 import h5py
 import numpy as np
 from progressbar import ProgressBar
 
 from ..src.data import VideoGenerator
-
-
-# from work.dataset.activitynet import ActivityNetDataset
-# from work.environment import (DATASET_LABELS, DATASET_VIDEOS, STORED_FEATURES_PATH,
-#                               STORED_MEAN_PATH, STORED_VIDEOS_EXTENSION, STORED_VIDEOS_PATH)
-# from work.models.c3d import C3D_conv_features
-# from work.processing.data import VideoGenerator
 
 
 def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size, num_gpus):
@@ -39,11 +33,13 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
     # Creating Parallel Fetching Video Data
     print('Creating {} process to fetch video data'.format(num_threads))
     data_gen_queue = multiprocessing.Queue(maxsize=queue_size)
-    _stop = multiprocessing.Event()
+    _stop_all_generators = multiprocessing.Event()
+    _stop_all_extractors = multiprocessing.Event()
     def data_generator_task(index):
         generator = VideoGenerator(videos_ids_to_extract[index:nb_videos:num_threads],
             videos_dir, '.mp4', length, input_size)
-        while not _stop.is_set():
+        keep = True
+        while keep:
             try:
                 if data_gen_queue.qsize() < max_q_size:
                     try:
@@ -54,7 +50,9 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
                 else:
                     time.sleep(wait_time)
             except Exception:
-                _stop.set()
+                keep = False
+                print('Something went wrong with generator_process')
+                print(traceback.stack_trace())
 
     generator_process = [multiprocessing.Process(target=data_generator_task, args=[i])
                             for i in range(num_threads)]
@@ -63,48 +61,153 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
         process.start()
 
 
+    data_save_queue = multiprocessing.Queue()
+    def extranting_features_task():
+        # Loading the model
+        print('Loading model')
+        model = C3D_conv_features(summary=True)
+        print('Compiling model')
+        model.compile(optimizer='sgd', loss='mse')
+        print('Compiling done!')
 
-    # Loading the model
-    print('Loading model')
-    model = C3D_conv_features(summary=True)
-    print('Compiling model')
-    model.compile(optimizer='sgd', loss='mse')
-    print('Compiling done!')
+        print('Starting extracting features')
 
-    print('Starting extracting features')
-    print('Total number of videos to extract features: {} videos'.format(nb_videos))
+        print('Loading mean')
+        mean_total = np.load('../data/models/c3d-sports1M_mean.py')
+        mean = np.mean(mean_total, axis=(0, 2, 3, 4), keepdims=True)
 
-    print('Loading mean')
-    mean_total = np.load(STORED_MEAN_PATH)
-    mean = np.mean(mean_total, axis=(0, 2, 3, 4), keepdims=True)
+        while True:
+            generator_output = None
+            while not (_stop_all_generators.is_set() and data_gen_queue.empty()):
+                if not data_gen_queue.empty():
+                    generator_output = data_gen_queue.get()
+                    if not generator_output:
+                        continue
+                    break
+                else:
+                    time.sleep(wait_time)
+            video_id, X = generator_output
+            if X is None:
+                print('Could not be read the video {}'.format(video_id))
+                continue
+            X = X - mean
+            Y = model.predict(X, batch_size=batch_size)
 
-    progbar = ProgressBar(max_value=nb_videos)
-    counter = 0
-    progbar.update(counter)
-    while counter < nb_videos:
-        counter += 1
-        # print('Video {}/{}'.format(counter, len(dataset.videos)))
-        generator_output = None
-        while not (_stop.is_set() and data_gen_queue.empty()):
-            if not data_gen_queue.empty():
-                generator_output = data_gen_queue.get()
-                if not generator_output:
-                    continue
-                break
-            else:
-                time.sleep(wait_time)
-        video_id, X = generator_output
-        if X is None:
-            print('Could not be read the video {}'.format(video_id))
-            continue
-        X = X - mean
-        Y = model.predict(X, batch_size=batch_size)
-        save_path = STORED_FEATURES_PATH + '/' + video_id + '.npy'
-        np.save(save_path, Y)
-        progbar.update(counter)
-    _stop.set()
-    progbar.finish()
-    print('Feature extraction completed')
+            data_save_queue.put((video_id, Y))
+
+    extractors_process = [multiprocessing.Process(target=extranting_features_task)
+        for i in range(num_gpus)]
+    for p in extractors_process:
+        p.daemon = True
+        p.start()
+
+    # Create the process that will get all the extracted features from the data_save_queue and
+    # store it on the hdf5 file.
+
+    def saver_task():
+        while True:
+            extracted_output = None
+            while not (_stop_all_extractors.is_set() and data_save_queue.empty()):
+                if not data_save_queue.empty():
+                    extracted_output = data_save_queue.get()
+                    if not extracted_output:
+                        continue
+                    break
+                else:
+                    time.sleep(wait_time)
+            video_id, features = extracted_output
+            if not features:
+                print('Something went wrong')
+                continue
+            assert features.shape[1] == 4096
+            output_file.create_dataset(video_id, data=features, dtype='float32')
+    saver_process = multiprocessing.Process(target=saver_task)
+    saver_process.daemon = True
+    saver_process.start()
+
+    # Joining processes
+    for p in generator_process:
+        p.join()
+    _stop_all_generators.set()
+    for p in extractors_process:
+        p.join()
+    _stop_all_extractors.set()
+    saver_process.join()
+
+
+
+def C3D_conv_features(summary=False):
+    """ Return the Keras model of the network until the fc6 layer where the
+    convolutional features can be extracted.
+    """
+    model = Sequential()
+    # 1st layer group
+    model.add(Convolution3D(64, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv1',
+                            subsample=(1, 1, 1),
+                            input_shape=(3, 16, 112, 112),
+                            trainable=False))
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
+                           border_mode='valid', name='pool1'))
+    # 2nd layer group
+    model.add(Convolution3D(128, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv2',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           border_mode='valid', name='pool2'))
+    # 3rd layer group
+    model.add(Convolution3D(256, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv3a',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(Convolution3D(256, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv3b',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           border_mode='valid', name='pool3'))
+    # 4th layer group
+    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv4a',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv4b',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           border_mode='valid', name='pool4'))
+    # 5th layer group
+    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv5a',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
+                            border_mode='same', name='conv5b',
+                            subsample=(1, 1, 1),
+                            trainable=False))
+    model.add(ZeroPadding3D(padding=(0, 1, 1), name='zeropadding'))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           border_mode='valid', name='pool5'))
+    model.add(Flatten(name='flatten'))
+    # FC layers group
+    model.add(Dense(4096, activation='relu', name='fc6', trainable=False))
+    model.add(Dropout(.5, name='do1'))
+    model.add(Dense(4096, activation='relu', name='fc7'))
+    model.add(Dropout(.5, name='do2'))
+    model.add(Dense(487, activation='softmax', name='fc8'))
+
+    # Load weights
+    model.load_weights(C3D_WEIGHTS_PATH)
+
+    for _ in range(4):
+        model.pop_layer()
+
+    if summary:
+        print(model.summary())
+    return model
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract video features using C3D network')
