@@ -2,10 +2,10 @@
 
 This is the project page of the UPC team participating in the [ActivityNet Challenge][activitynet-challenge] for CVPR 2016.
 
-| ![Alberto Montes][image-alberto] | ![Amaia Salvador](imatge-amaia) | ![Xavier Giró-i-Nieto][image-xavier] | ![Santiago Pascual][image-santi] |
+| ![Alberto Montes][image-alberto] | ![Amaia Salvador][image-amaia] | ![Xavier Giró-i-Nieto][image-xavier] | ![Santiago Pascual][image-santi] |
 | :---: | :---: | :---: | :---: |
 | Main contributor | Advisor | Advisor | Co-advisor |
-| Issey Masuda Mora | [Amaia Salvador](web-amaia) | [Xavier Giró-i-Nieto][web-xavier] | Santiago Pascual |
+| Alberto Montes | [Amaia Salvador](web-amaia) | [Xavier Giró-i-Nieto][web-xavier] | Santiago Pascual |
 
 Institution: [Universitat Politècnica de Catalunya](http://www.upc.edu).
 
@@ -50,13 +50,12 @@ on this github repo. Alternatively, drop us an e-mail at [xavier.giro@upc.edu](m
 
 <!--Images-->
 [image-alberto]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/alberto_montes.jpg "Alberto Montes"
-[image-amaia]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/xavier_giro.jpg Amaia Salvador"
+[image-amaia]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/amaia_salvador.jpg "Amaia Salvador"
 [image-xavier]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/xavier_giro.jpg "Xavier Giró-i-Nieto"
 [image-santi]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/santi_pascual.jpg "Santiago Pascual"
 [image-albert]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/albert_gil.jpg "Albert Gil"
 [image-josep]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/josep_pujal.jpg "Josep Pujal"
 
-[image-model]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/model.jpg
 [image-upc-logo]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/upc_etsetb.jpg
 
 <!--Links-->
