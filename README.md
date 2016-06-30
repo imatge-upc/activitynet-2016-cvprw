@@ -1,121 +1,70 @@
-# UPC at ActivityNet Challenge 2016
+# Temporal Activity Detection in Untrimmed Videos with Recurrent Neural Networks
 
-This repository contains all the code related to the participation of the Universitat Politècnica
-de Catalunya (UPC) at the ActivityNet Challenge 2016 at the CVPR.
+This is the project page of the UPC team participating in the [ActivityNet Challenge][activitynet-challenge] for CVPR 2016.
 
-All the code available is to reproduce and check the model proposed to face the classification and
-detection task over the video dataset. It will be explained step by step all the stages required
-to reproduce the results and also how to obtain predictions with our proposed model.
+| ![Alberto Montes][image-alberto] | ![Amaia Salvador](imatge-amaia) | ![Xavier Giró-i-Nieto][image-xavier] | ![Santiago Pascual][image-santi] |
+| :---: | :---: | :---: | :---: |
+| Main contributor | Advisor | Advisor | Co-advisor |
+| Issey Masuda Mora | [Amaia Salvador](web-amaia) | [Xavier Giró-i-Nieto][web-xavier] | Santiago Pascual |
+
+Institution: [Universitat Politècnica de Catalunya](http://www.upc.edu).
+
+![Universitat Politècnica de Catalunya][image-upc-logo]
 
 
-## Requirements
+## Abstract
 
-The first steps would require to have a Python
-[virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/) set and work there.
-It is recommended to use Python 2.7 as all the experiments have run over this version.
+Deep learning techniques have been proven to be a great success for tasks like object detection and classification.
+They have achieve huge accuracy on images but on videos where the temporal dimension is present, more new techniques are required to face task over them.
 
-Next step is to install all the required packages:
-```bash
-virtualenv -p python2.7 --system-site-packages venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+Activity classification and temporal activity location require new models which try to explode the temporal correlations the videos present to achieve good results on this tasks. The work presented try to face this tasks, for both activity classification and temporal activity localization using the [ActivityNet Dataset][activitynet-dataset].
 
-In addition to this, it will be required also to have OpenCV install on the machine to run it.
-[Here](http://opencv.org/quickstart.html) there is the steps to install it. Assert that the
-installation install the Python package. The installation can be on the machine as
-`--system-site-packages` have been enabled, the cv package will be seen inside the virtual
-environment.
+This work propose to face the tasks with a two stage pipeline. The first stage is to extract video features from the C3D which exploit temporal correlations and then a RNN made up by LSTM cells which try to learn long-term correlations and returning a sequence of activities along the video that will help to classify and temporally localize activities.
 
-All the experiments have been done with the Framework [Keras](http://keras.io/) with the
-[Theano](https://github.com/Theano/Theano) as the computational backend. The version of Keras is a
-fork with some modifications which allow to make the 3D operations from the C3D over GPU (the
-original implementation crashed over GPU). To run it successfully over GPU, the file `~/.theanorc`
-should look like this:
-```
-[global]
-floatX = float32
-device = gpu
-optimizer_including = cudnn
 
-[lib]
-cnmem = 1
+## Dependencies
 
-[dnn]
-enabled = True
-```
+This project is build using the [Keras](https://github.com/fchollet/keras) library for Deep Learning, which can use as a backend both [Theano](https://github.com/Theano/Theano)
+and [TensorFlow](https://github.com/tensorflow/tensorflow).
 
-## Run Full Pipeline
+We have used Theano in order to develop the project because it supported 3D convolutions and pooling required to run the C3D network.
 
-To run the full pipeline, first it would be necessary to download the weights of both models: C3D and our trained model:
+For a further and more complete of all the dependencies used within this project, check out the requirements.txt provided within the project. This file will help you to recreate the exact same Python environment that we worked with.
 
-```bash
-sh get_c3d_sports.sh
-sh get_temporal_location_weights.sh
 
-```
 
-## Reproduce Experiments
+## Acknowledgements
 
-### Download the ActivityNet v1.3 Dataset
+We would like to especially thank Albert Gil Moreno and Josep Pujal from our technical support team at the Image Processing Group at the UPC.
 
-The dataset is made up by videos from Youtube so they require to be download from the internet. To
-do so, it has been used the [youtube-dl](https://rg3.github.io/youtube-dl/) package. To download all
-the dataset, it has been extracted to the file `videos_ids.lst` the YouTube IDs of all the dataset
-videos. Some of the videos are no longer available so they have been removed from the list, but
-some others require to sign in to youtube to download it. For this reason, the download script will
-require to give a valid YouTube login. Also, by default, all the videos will be downloaded into
-the directory `./data/videos`. You can also specify which directory you want to store the videos.
+| ![Albert Gil][image-albert] | ![Josep Pujal][image-josep]  |
+| :---: | :---: |
+| [Albert Gil](web-albert)  |  [Josep Pujal](web-josep) |
 
-```bash
-cd dataset
-# This will download the videos on the default directory
-sh download_videos.sh username password
-# This will download the videos on the directory you specify
-sh download_videos.sh username password /path/you/want
-```
 
-### Extract the Features from the C3D Network
 
-As the next step is to pass all the videos through the C3D network, first is required to download
-the weights ported to [Keras](https://gist.github.com/albertomontesg/d8b21a179c1e6cca0480ebdf292c34d2).
+## Contact
+If you have any general doubt about our work or code which may be of interest for other researchers, please use the [issues section](https://github.com/imatge-upc/activitynet-2016-cvprw/issues)
+on this github repo. Alternatively, drop us an e-mail at [xavier.giro@upc.edu](mailto:xavier.giro@upc.edu).
 
-```bash
-cd data
-sh get_c3d_sports.sh
-```
 
-Then, with the weights, there is a script which will read all the videos and extract its features.
-To read the videos, it will require also to have OpenCV framework.
+<!--Images-->
+[image-alberto]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/alberto_montes.jpg "Alberto Montes"
+[image-amaia]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/xavier_giro.jpg Amaia Salvador"
+[image-xavier]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/xavier_giro.jpg "Xavier Giró-i-Nieto"
+[image-santi]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/santi_pascual.jpg "Santiago Pascual"
+[image-albert]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/albert_gil.jpg "Albert Gil"
+[image-josep]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/josep_pujal.jpg "Josep Pujal"
 
-```bash
->> python -u features/extract_features.py -h
-usage: extract_features.py [-h] [-d DIRECTORY] [-o OUTPUT] [-b BATCH_SIZE]
-                           [-t NUM_THREADS] [-q QUEUE_SIZE] [-g NUM_GPUS]
+[image-model]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/model.jpg
+[image-upc-logo]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/images/upc_etsetb.jpg
 
-Extract video features using C3D network
+<!--Links-->
+[web-xavier]: https://imatge.upc.edu/web/people/xavier-giro
+[web-albert]: https://imatge.upc.edu/web/people/albert-gil-moreno
+[web-josep]: https://imatge.upc.edu/web/people/josep-pujal
+[web-amaia]: https://imatge.upc.edu/web/people/amaia-salvador
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -d DIRECTORY, --videos-dir DIRECTORY
-                        videos directory (default: data/videos)
-  -o OUTPUT, --output-dir OUTPUT
-                        directory where to store the extracted features
-                        (default: data/dataset)
-  -b BATCH_SIZE, --batch-size BATCH_SIZE
-                        batch size when extracting features (default: 32)
-  -t NUM_THREADS, --num-threads NUM_THREADS
-                        number of threads to fetch videos (default: 8)
-  -q QUEUE_SIZE, --queue-size QUEUE_SIZE
-                        maximum number of elements at the queue when fetching
-                        videos (default 12)
-  -g NUM_GPUS, --num-gpus NUM_GPUS
-                        number of gpus to use for extracting features
-                        (default: 1)
-```
-
-Because extracting a huge amount of features from a very big dataset (ActivityNet dataset videos have a 600GB size once downloaded) it require to do all the process very efficiently.
-
-The script is based in producer/consumer paradigm, where there are multiple process fetching videos from disk (this task only requires CPU workload). Then one or multiple (not tested) process are created which each one works with one GPU and load the model and extract the features. Finally to safely store the extracted features, all the extracted ones are placed in a queue that a single process store them on a HDF5 file.
-
-If appear any error trying to allocate memory from Theano, try to run over a GPU with a more memory, or reduce the batch size.
+[activitynet-challenge]: http://activity-net.org/challenges/2016/
+[activitynet-dataset]: http://activity-net.org/download.html
+[keras]: http://keras.io/
