@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import argparse
 import multiprocessing
 import os
@@ -9,7 +11,7 @@ import h5py
 import numpy as np
 from progressbar import ProgressBar
 
-from ..src.data import VideoGenerator
+from src.data import VideoGenerator
 
 
 def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size, num_gpus):
@@ -18,8 +20,10 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
     length = 16
     wait_time = 0.1
 
+    output_path = os.path.join(output_dir, 'video_features.hdf5')
+    mode = 'r+' if os.path.exists(output_path) else 'w'
+    output_file = h5py.File(output_path, mode)
 
-    output_file = h5py.File(os.path.join(output_dir, 'video_features.hdf5'), 'r+')
     videos_ids = [v[:-4] for v in os.listdir(videos_dir) if v[:-4] == '.mp4']
 
     # Lets remove from the list videos_ids, the ones already extracted its features
@@ -28,7 +32,7 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
     nb_videos = len(videos_ids_to_extract)
     print('Total number of videos: {}'.format(len(videos_ids)))
     print('Videos already extracted its features: {}'.format(len(output_file.keys())))
-    print('Videos to extract its features: {}'.format(len(nb_videos)))
+    print('Videos to extract its features: {}'.format(nb_videos))
 
     # Creating Parallel Fetching Video Data
     print('Creating {} process to fetch video data'.format(num_threads))
@@ -211,17 +215,17 @@ def C3D_conv_features(summary=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract video features using C3D network')
-    parser.add_argument('-d', '--videos-dir', type=str, destination='directory',
-        help='videos directory')
-    parser.add_argument('-o', '--output-dir', type=str, destination='output',
-        help='directory where to store the extracted features')
-    parser.add_argument('-b', '--batch-size', type=int, destination='batch_size',
+    parser.add_argument('-d', '--videos-dir', type=str, dest='directory',
+        default='data/videos', help='videos directory')
+    parser.add_argument('-o', '--output-dir', type=str, dest='output',
+        default='data/dataset', help='directory where to store the extracted features')
+    parser.add_argument('-b', '--batch-size', type=int, dest='batch_size',
         default=32, help='batch size when extracting features (default: %(default)s)')
-    parser.add_argument('-t', '--num-threads', type=int, destination='num_threads',
+    parser.add_argument('-t', '--num-threads', type=int, dest='num_threads',
         default=8, help='number of threads to fetch videos (default: %(default)s)')
-    parser.add_argument('-q', '--queue-size', type=int, destination='queue_size',
+    parser.add_argument('-q', '--queue-size', type=int, dest='queue_size',
         default=12, help='maximum number of elements at the queue when fetching videos (default %(default)s)')
-    parser.add_argument('-g', '--num-gpus', type=int, destination='num_gpus',
+    parser.add_argument('-g', '--num-gpus', type=int, dest='num_gpus',
         default=1, help='number of gpus to use for extracting features (default: %(default)s)')
 
     args = parser.parse_args()
