@@ -45,6 +45,16 @@ cnmem = 1
 enabled = True
 ```
 
+## Run Full Pipeline
+
+To run the full pipeline, first it would be necessary to download the weights of both models: C3D and our trained model:
+
+```bash
+sh get_c3d_sports.sh
+sh get_temporal_location_weights.sh
+
+```
+
 ## Reproduce Experiments
 
 ### Download the ActivityNet v1.3 Dataset
