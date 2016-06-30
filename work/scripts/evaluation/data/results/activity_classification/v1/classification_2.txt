@@ -1,7 +1,0 @@
-[INIT] Loaded annotations from validation subset.
-	Number of ground truth instances: 4859
-	Number of predictions: 14490
-[RESULTS] Performance on ActivityNet untrimmed video classification task.
-	Mean Average Precision: 0.507605336599
-	Hit@3: 0.694352844188
-	Avg Hit@3: 0.694249793899
