@@ -31,7 +31,6 @@ var/
 .remote-sync.json
 
 # Images and videos
-*.jpg
 *.avi
 *.mp4
 *.h5
