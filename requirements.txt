@@ -1,4 +1,5 @@
-jupyter
+jupyter==1.0.0
 youtube-dl==2016.6.27
 Theano==0.8.2
-progressbar2
+progressbar2==3.9.3
+git+https://github.com/albertomontesg/keras.git@improved-3d-ops

@@ -78,5 +78,34 @@ sh get_c3d_sports.sh
 Then, with the weights, there is a script which will read all the videos and extract its features.
 To read the videos, it will require also to have OpenCV framework.
 
+```bash
+>> python -u features/extract_features.py -h
+usage: extract_features.py [-h] [-d DIRECTORY] [-o OUTPUT] [-b BATCH_SIZE]
+                           [-t NUM_THREADS] [-q QUEUE_SIZE] [-g NUM_GPUS]
+
+Extract video features using C3D network
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DIRECTORY, --videos-dir DIRECTORY
+                        videos directory (default: data/videos)
+  -o OUTPUT, --output-dir OUTPUT
+                        directory where to store the extracted features
+                        (default: data/dataset)
+  -b BATCH_SIZE, --batch-size BATCH_SIZE
+                        batch size when extracting features (default: 32)
+  -t NUM_THREADS, --num-threads NUM_THREADS
+                        number of threads to fetch videos (default: 8)
+  -q QUEUE_SIZE, --queue-size QUEUE_SIZE
+                        maximum number of elements at the queue when fetching
+                        videos (default 12)
+  -g NUM_GPUS, --num-gpus NUM_GPUS
+                        number of gpus to use for extracting features
+                        (default: 1)
 ```
-./extract_features.py 
+
+Because extracting a huge amount of features from a very big dataset (ActivityNet dataset videos have a 600GB size once downloaded) it require to do all the process very efficiently.
+
+The script is based in producer/consumer paradigm, where there are multiple process fetching videos from disk (this task only requires CPU workload). Then one or multiple (not tested) process are created which each one works with one GPU and load the model and extract the features. Finally to safely store the extracted features, all the extracted ones are placed in a queue that a single process store them on a HDF5 file.
+
+If appear any error trying to allocate memory from Theano, try to run over a GPU with a more memory, or reduce the batch size.
