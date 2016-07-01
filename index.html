@@ -64,6 +64,31 @@ They have achieve huge accuracy on images but on videos where the temporal dimen
 <p>This work propose to face the tasks with a two stage pipeline. The first stage is to extract video features from the C3D which exploit temporal correlations and then a RNN made up by LSTM cells which try to learn long-term correlations and returning a sequence of activities along the video that will help to classify and temporally localize activities.</p>
 
 <h2>
+<a id="what-are-you-going-to-find-here" class="anchor" href="#what-are-you-going-to-find-here" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Are You Going to Find Here</h2>
+
+<p>This project is a baseline in the activity classification and its temporal location, focused on the <a href="http://activity-net.org/challenges/2016/">ActivityNet Challenge</a>. Here is detailed all the process of our proposed pipeline, as well the trained models and the utility to classify and temporally localize activities on new videos given. All the steps have been detailed, from downloading the dataset, to predicting the temporal locations going through the feature extraction and also the training.</p>
+
+<h2>
+<a id="repository-structure" class="anchor" href="#repository-structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Repository Structure</h2>
+
+<p>This repository is structured in the following way:</p>
+
+<ul>
+<li>
+<code>data/</code>: dir where, by default, all the data such as videos or model weights are stored. Some data is given such ass the C3D means and also provide scripts to download the weights for the C3D model and the one we propose.</li>
+<li>
+<code>dataset/</code>: files describing the ActivityNet dataset and a script to download all the videos. The information of the dataset has been extended with the number of frames at each of the videos.</li>
+<li>
+<code>misc/</code>: directory with some miscellaneous information such as all the details of the steps followed on this project and much more.</li>
+<li>
+<code>notebooks/</code>: notebooks with some visualization of the results.</li>
+<li>
+<code>scripts/</code>: scripts to reproduce all the steps of project.</li>
+<li>
+<code>src/</code>: source code required for the scripts.</li>
+</ul>
+
+<h2>
 <a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependencies</h2>
 
 <p>This project is build using the <a href="https://github.com/fchollet/keras">Keras</a> library for Deep Learning, which can use as a backend both <a href="https://github.com/Theano/Theano">Theano</a>
@@ -72,6 +97,31 @@ and <a href="https://github.com/tensorflow/tensorflow">TensorFlow</a>.</p>
 <p>We have used Theano in order to develop the project because it supported 3D convolutions and pooling required to run the C3D network.</p>
 
 <p>For a further and more complete of all the dependencies used within this project, check out the requirements.txt provided within the project. This file will help you to recreate the exact same Python environment that we worked with.</p>
+
+<h2>
+<a id="pipeline" class="anchor" href="#pipeline" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Pipeline</h2>
+
+<p>The pipeline proposed to face the ActivityNet Challenge is made up by two stages.</p>
+
+<p>The first stage encode the video information into a single vector representation for small video clips. To achieve that, the C3D network [Tran2014] is used. The C3D network uses 3D convolutions to extract spatiotemporal features from the videos, which previously have been split in 16-frames clips.</p>
+
+<p>The second stage, once the video features are extracted, is to classify the activity on each clip as the videos of the ActivityNet are untrimmed and may be an activity or not (background). To perform this classification a RNN is used. More specifically a LSTM network which tries to exploit long term correlations and perform a prediction of the video sequence. This stage is the one which has been trained.</p>
+
+<p>The structure of the network can be seen on the next figure.</p>
+
+<p><img src="https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/network_pipeline.jpg" alt="Network Pipeline"></p>
+
+<h2>
+<a id="related-work" class="anchor" href="#related-work" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Related work</h2>
+
+<ul>
+<li>Tran, D., Bourdev, L., Fergus, R., Torresani, L., &amp; Paluri, M. (2015, December). Learning spatiotemporal features with 3d convolutional networks. In 2015 IEEE International Conference on Computer Vision (ICCV) (pp. 4489-4497). IEEE. [<a href="http://arxiv.org/pdf/1412.0767.pdf">paper</a>] [<a href="https://github.com/facebook/C3D">code</a>]</li>
+<li>Sharma, S., Kiros, R., &amp; Salakhutdinov, R. (2015). Action recognition using visual attention. arXiv preprint arXiv:1511.04119. [<a href="http://arxiv.org/pdf/1511.04119.pdf">paper</a>][<a href="https://github.com/kracwarlock/action-recognition-visual-attention">code</a>]</li>
+<li>Yeung, S., Russakovsky, O., Mori, G., &amp; Fei-Fei, L. (2015). End-to-end Learning of Action Detection from Frame Glimpses in Videos. arXiv preprint arXiv:1511.06984. [<a href="http://arxiv.org/pdf/1511.06984.pdf">paper</a>]</li>
+<li>Yeung, Serena, et al. "Every moment counts: Dense detailed labeling of actions in complex videos." arXiv preprint arXiv:1507.05738 (2015).[<a href="http://arxiv.org/pdf/1507.05738v2.pdf">paper</a>]</li>
+<li>Baccouche, M., Mamalet, F., Wolf, C., Garcia, C., &amp; Baskurt, A. (2011, November). Sequential deep learning for human action recognition. In International Workshop on Human Behavior Understanding (pp. 29-39). Springer Berlin Heidelberg. [<a href="https://www.researchgate.net/profile/Moez_Baccouche/publication/221620711_Sequential_Deep_Learning_for_Human_Action_Recognition/links/53eca3470cf250c8947cd686.pdf">paper</a>]</li>
+<li>Shou, Zheng, Dongang Wang, and Shih-Fu Chang. "Temporal Action Localization in Untrimmed Videos via Multi-stage CNNs." [<a href="http://dvmmweb.cs.columbia.edu/files/dvmm_scnn_paper.pdf">paper</a>] [<a href="https://github.com/zhengshou/scnn">code</a>]</li>
+</ul>
 
 <h2>
 <a id="acknowledgements" class="anchor" href="#acknowledgements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Acknowledgements</h2>
