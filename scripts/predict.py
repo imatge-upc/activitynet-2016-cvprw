@@ -19,7 +19,7 @@ def extract_predicted_outputs(experiment_id, input_dataset, num_cells, num_layer
     weights_path = 'data/model_snapshot/lstm_activity_classification_{experiment_id}_e{nb_epoch:03d}.hdf5'.format(
         experiment_id=experiment_id, nb_epoch=epoch
     )
-    store_file = 'predictions_{experiment_id}_e{nb_epoch:03d}.hdf5'.format(
+    store_file = 'predictions_{experiment_id}.hdf5'.format(
         experiment_id=experiment_id, nb_epoch=epoch
     )
     store_path = os.path.join(output_path, store_file)
@@ -73,7 +73,7 @@ def extract_predicted_outputs(experiment_id, input_dataset, num_cells, num_layer
     h5_predict.close()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Predict the output with the trained RNN ')
+    parser = argparse.ArgumentParser(description='Predict the output with the trained RNN')
 
     parser.add_argument('--id', dest='experiment_id', default=0, help='Experiment ID to track and not overwrite resulting models')
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-e', '--epoch', type=int, dest='epoch', default=100, help='epoch at which you want to load the weights from the trained model (default: %(default)s)')
     parser.add_argument('-o', '--output', type=str, dest='output_path', default='data/dataset', help='path to store the output file (default: %(default)s)')
-    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['training', 'validation'], help='Subset you want to create the stateful dataset (default: training and validation)')
+    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['training', 'validation'], help='Subset you want to predict the output (default: training and validation)')
 
     args = parser.parse_args()
 
