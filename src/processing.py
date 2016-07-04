@@ -38,7 +38,7 @@ def activity_localization(sequence_class_prob, activity_threshold=.2):
     padded = np.pad(activity_tag, pad_width=1, mode='constant')
     dif = padded[1:] - padded [:-1]
 
-    indexes = np.arange(dif.size)
+    indexes = np.arange(dif.size).astype(np.float32)
     startings = indexes[dif==1]
     endings = indexes[dif==-1]
 

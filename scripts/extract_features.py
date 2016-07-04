@@ -26,8 +26,6 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
     output_file = h5py.File(output_path, mode)
     extracted_videos = output_file.keys()
     output_file.close()
-    #print(extracted_videos)
-    #return
 
     videos_ids = [v[:-4] for v in os.listdir(videos_dir) if v[-4:] == '.mp4']
 

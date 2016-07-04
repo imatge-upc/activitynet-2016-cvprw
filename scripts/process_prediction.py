@@ -13,6 +13,7 @@ from src.processing import activity_localization, get_classification, smoothing
 
 
 def process_prediction(experiment_id, predictions_path, output_path, smoothing_k, activity_threshold, subset=None):
+    clip_length = 16.
 
     if subset == None:
         subsets = ['validation', 'testing']
@@ -62,7 +63,7 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
             # Post Processing to obtain the detection
             prediction_smoothed = smoothing(prediction, k=smoothing_k)
             activities_idx, startings, endings, scores = activity_localization(
-                prediction,
+                prediction_smoothed,
                 activity_threshold
             )
             result_detection = []
@@ -71,8 +72,8 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
                 result_detection.append({
                     'score': score,
                     'segment': [
-                        s * nb_clips / fps,
-                        e * nb_clips / fps
+                        s * clip_length / fps,
+                        e * clip_length / fps
                     ],
                     'label': label
                 })
