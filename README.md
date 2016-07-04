@@ -56,6 +56,8 @@ The structure of the network can be seen on the next figure.
 
 ![Network Pipeline][network-pipeline]
 
+To reproduce all the process of the pipeline, there is a [detailed guide](https://github.com/imatge-upc/activitynet-2016-cvprw/blob/master/misc/step_by_step_guide.md) about how to reproduce all the steps with the scripts provided.
+
 ## Related work
 
 * Tran, D., Bourdev, L., Fergus, R., Torresani, L., & Paluri, M. (2015, December). Learning spatiotemporal features with 3d convolutional networks. In 2015 IEEE International Conference on Computer Vision (ICCV) (pp. 4489-4497). IEEE. [[paper](http://arxiv.org/pdf/1412.0767.pdf)] [[code](https://github.com/facebook/C3D)]
