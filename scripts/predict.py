@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-e', '--epoch', type=int, dest='epoch', default=100, help='epoch at which you want to load the weights from the trained model (default: %(default)s)')
     parser.add_argument('-o', '--output', type=str, dest='output_path', default='data/dataset', help='path to store the output file (default: %(default)s)')
-    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['training', 'validation'], help='Subset you want to predict the output (default: training and validation)')
+    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['validation', 'testing'], help='Subset you want to predict the output (default: validation and testing)')
 
     args = parser.parse_args()
 

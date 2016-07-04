@@ -50,9 +50,14 @@ enabled = True
 To run the full pipeline, first it would be necessary to download the weights of both models: C3D and our trained model:
 
 ```bash
+cd data/models
 sh get_c3d_sports.sh
 sh get_temporal_location_weights.sh
+```
 
+Then it is only necessary to run the script with the input video specified:
+```bash
+python scripts/run_all_pipeline.py -i path/to/test/video.mp4
 ```
 
 ## Reproduce Experiments
@@ -81,7 +86,7 @@ As the next step is to pass all the videos through the C3D network, first is req
 the weights ported to [Keras](https://gist.github.com/albertomontesg/d8b21a179c1e6cca0480ebdf292c34d2).
 
 ```bash
-cd data
+cd data/models
 sh get_c3d_sports.sh
 ```
 
@@ -119,3 +124,157 @@ Because extracting a huge amount of features from a very big dataset (ActivityNe
 The script is based in producer/consumer paradigm, where there are multiple process fetching videos from disk (this task only requires CPU workload). Then one or multiple (not tested) process are created which each one works with one GPU and load the model and extract the features. Finally to safely store the extracted features, all the extracted ones are placed in a queue that a single process store them on a HDF5 file.
 
 If appear any error trying to allocate memory from Theano, try to run over a GPU with a more memory, or reduce the batch size.
+
+### Create Stateful Dataset
+
+Once all the features have been extracted, it is required to place all the videos in batches but presenting continuity between them and so be able to train a recurrent neural network with a stateful approach.
+
+![Stateful Dataset][stateful-dataset]
+
+With the following script it will be created the stateful dataset for training and validation data and be stored in a HDF5 file:
+
+```bash
+>> python scripts/create_stateful_dataset.py -h
+usage: create_stateful_dataset.py [-h] [-i VIDEO_FEATURES_FILE]
+                                  [-v VIDEOS_INFO] [-l LABELS] [-o OUTPUT_DIR]
+                                  [-b BATCH_SIZE] [-t TIMESTEPS]
+                                  [-s {training,validation}]
+
+Put all the videos features into the correct way to train a RNN in a stateful
+way
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i VIDEO_FEATURES_FILE, --video-features VIDEO_FEATURES_FILE
+                        HDF5 where the video features have been extracted
+                        (default: data/dataset/video_features.hdf5)
+  -v VIDEOS_INFO, --videos-info VIDEOS_INFO
+                        File containing the annotations of all the videos on
+                        the dataset (default: dataset/videos.json)
+  -l LABELS, --labels LABELS
+                        File containing the labels of the whole dataset
+                        (default: dataset/labels.txt)
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        directory where to store the stateful dataset
+                        (default: data/dataset)
+  -b BATCH_SIZE, --batch-size BATCH_SIZE
+                        batch size desired to use for training (default: 256)
+  -t TIMESTEPS, --timesteps TIMESTEPS
+                        timesteps desired for training the RNN (default: 20)
+  -s {training,validation}, --subset {training,validation}
+                        Subset you want to create the stateful dataset
+                        (default: training and validation)
+```
+
+### Train
+
+The next step is to train the RNN using the provided script. The script also allows to change the configuration such as the learning rate, the number of LSTM cells or even the number of layers. During training, snapshots of the model weight's will be being stored for future prediction of the best model.
+
+On `src/visualize` there is a function to plot the script's training.
+
+```bash
+>> python scripts/train.py -h
+usage: train.py [-h] [--id EXPERIMENT_ID] [-i INPUT_DATASET] [-n NUM_CELLS]
+                [--num-layers NUM_LAYERS] [-p DROPOUT_PROBABILITY]
+                [-b BATCH_SIZE] [-t TIMESTEPS] [-e EPOCHS] [-l LEARNING_RATE]
+                [-w LOSS_WEIGHT]
+
+Train the RNN
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --id EXPERIMENT_ID    Experiment ID to track and not overwrite resulting
+                        models
+  -i INPUT_DATASET, --input-data INPUT_DATASET
+                        File where the stateful dataset is stored (default:
+                        data/dataset/dataset_stateful.hdf5)
+  -n NUM_CELLS, --num-cells NUM_CELLS
+                        Number of cells for each LSTM layer (default: 512)
+  --num-layers NUM_LAYERS
+                        Number of LSTM layers of the network to train
+                        (default: 1)
+  -p DROPOUT_PROBABILITY, --drop-prob DROPOUT_PROBABILITY
+                        Dropout Probability (default: 0.5)
+  -b BATCH_SIZE, --batch-size BATCH_SIZE
+                        batch size used to create the stateful dataset
+                        (default: 256)
+  -t TIMESTEPS, --timesteps TIMESTEPS
+                        timesteps used to create the stateful dataset
+                        (default: 20)
+  -e EPOCHS, --epochs EPOCHS
+                        number of epochs to last the training (default: 100)
+  -l LEARNING_RATE, --learning-rate LEARNING_RATE
+                        learning rate for training (default: 1e-05)
+  -w LOSS_WEIGHT, --loss-weight LOSS_WEIGHT
+                        value to weight the loss to the background samples
+                        (default: 0.3)
+```
+
+### Predict
+
+Once the model is trained, its time to predict the results for the validation and test subset. To do so:
+
+```bash
+python scripts/predict.py -h
+usage: predict.py [-h] [--id EXPERIMENT_ID] [-i VIDEO_FEATURES] [-n NUM_CELLS]
+                  [--num-layers NUM_LAYERS] [-e EPOCH] [-o OUTPUT_PATH]
+                  [-s {validation,testing}]
+
+Predict the output with the trained RNN
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --id EXPERIMENT_ID    Experiment ID to track and not overwrite resulting
+                        models
+  -i VIDEO_FEATURES, --video-features VIDEO_FEATURES
+                        File where the video features are stored (default:
+                        data/dataset/video_features.hdf5)
+  -n NUM_CELLS, --num-cells NUM_CELLS
+                        Number of cells for each LSTM layer when trained
+                        (default: 512)
+  --num-layers NUM_LAYERS
+                        Number of LSTM layers of the network to train when
+                        trained (default: 1)
+  -e EPOCH, --epoch EPOCH
+                        epoch at which you want to load the weights from the
+                        trained model (default: 100)
+  -o OUTPUT_PATH, --output OUTPUT_PATH
+                        path to store the output file (default: data/dataset)
+  -s {validation,testing}, --subset {validation,testing}
+                        Subset you want to predict the output (default:
+                        validation and testing)
+```
+
+Be sure to specify correctly the `experiment_id` and the `epoch` of the previous trained model in order to use the correct weights.
+
+### Post Processing
+
+Finally, to obtain the classification and temporal localization of activities on the ActivityNet dataset, requires to do some post-processing. The script provided let choose some values but the default ones are the ones with better performance. The script returns 4 `json` files (classification and detection task for both validation and testing subset) with all the results in the format required by the ActivityNet Challenge.
+
+```bash
+>> python scripts/process_prediction.py -h
+usage: process_prediction.py [-h] [--id EXPERIMENT_ID] [-p PREDICTIONS_PATH]
+                             [-o OUTPUT_PATH] [-k SMOOTHING_K]
+                             [-t ACTIVITY_THRESHOLD] [-s {validation,testing}]
+
+Post-process the prediction of the RNN to obtain the classification and
+temporal localization of the videos activity
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --id EXPERIMENT_ID    Experiment ID to track and not overwrite results
+  -p PREDICTIONS_PATH, --predictions-path PREDICTIONS_PATH
+                        Path where the predictions file is stored (default:
+                        data/dataset)
+  -o OUTPUT_PATH, --output-path OUTPUT_PATH
+                        Path where is desired to store the results (default:
+                        data/dataset)
+  -k SMOOTHING_K        Smoothing factor at post-processing (default: 5)
+  -t ACTIVITY_THRESHOLD
+                        Activity threshold at post-processing (default: 0.2)
+  -s {validation,testing}, --subset {validation,testing}
+                        Subset you want to post-process the output (default:
+                        validation and testing)
+```
+
+[stateful-dataset]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/stateful_dataset.png

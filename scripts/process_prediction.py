@@ -109,7 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('-k', type=int, dest='smoothing_k', default=5, help='Smoothing factor at post-processing (default: %(default)s)')
     parser.add_argument('-t', type=float, dest='activity_threshold', default=.2, help='Activity threshold at post-processing (default: %(default)s)')
 
-    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['training', 'validation'], help='Subset you want to post-process the output (default: training and validation)')
+    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['validation', 'testing'], help='Subset you want to post-process the output (default: validation and testing)')
 
     args = parser.parse_args()
 
