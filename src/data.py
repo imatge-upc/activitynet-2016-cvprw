@@ -59,11 +59,10 @@ def generate_output(video_info, labels, length=16):
         if outs.count(label) >= length / 2:
             output = labels.index(label)
         else:
-            output = labels.index('none')
+            output = labels[0]
         instances.append(output)
 
     return instances
-
 
 
 class VideoGenerator(object):
