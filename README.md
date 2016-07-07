@@ -83,16 +83,16 @@ on this github repo. Alternatively, drop us an e-mail at [xavier.giro@upc.edu](m
 
 
 <!--Images-->
-[image-alberto]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/alberto_montes.jpg "Alberto Montes"
-[image-amaia]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/amaia_salvador.jpg "Amaia Salvador"
-[image-xavier]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/xavier_giro.jpg "Xavier Giró-i-Nieto"
-[image-santi]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/santi_pascual.jpg "Santiago Pascual"
-[image-albert]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/albert_gil.jpg "Albert Gil"
-[image-josep]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/josep_pujal.jpg "Josep Pujal"
+[image-alberto]: misc/images/alberto_montes.jpg "Alberto Montes"
+[image-amaia]: misc/images/amaia_salvador.jpg "Amaia Salvador"
+[image-xavier]: misc/images/xavier_giro.jpg "Xavier Giró-i-Nieto"
+[image-santi]: misc/images/santi_pascual.jpg "Santiago Pascual"
+[image-albert]: misc/images/albert_gil.jpg "Albert Gil"
+[image-josep]: misc/images/josep_pujal.jpg "Josep Pujal"
 
-[image-upc-logo]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/upc_etsetb.jpg
+[image-upc-logo]: misc/images/upc_etsetb.jpg
 
-[network-pipeline]: https://raw.githubusercontent.com/imatge-upc/activitynet-2016-cvprw/master/misc/images/network_pipeline.jpg
+[network-pipeline]: misc/images/network_pipeline.jpg
 
 <!--Links-->
 [web-xavier]: https://imatge.upc.edu/web/people/xavier-giro
