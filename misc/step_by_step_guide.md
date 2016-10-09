@@ -51,7 +51,7 @@ To run the full pipeline, first it would be necessary to download the weights of
 
 ```bash
 cd data/models
-sh get_c3d_sports.sh
+sh get_c3d_sports_weights.sh
 sh get_temporal_location_weights.sh
 ```
 
@@ -87,14 +87,14 @@ the weights ported to [Keras](https://gist.github.com/albertomontesg/d8b21a179c1
 
 ```bash
 cd data/models
-sh get_c3d_sports.sh
+sh get_c3d_sports_weights.sh
 ```
 
 Then, with the weights, there is a script which will read all the videos and extract its features.
 To read the videos, it will require also to have OpenCV framework.
 
 ```bash
->> python -u features/extract_features.py -h
+>> python -u scripts/extract_features.py -h
 usage: extract_features.py [-h] [-d DIRECTORY] [-o OUTPUT] [-b BATCH_SIZE]
                            [-t NUM_THREADS] [-q QUEUE_SIZE] [-g NUM_GPUS]
 

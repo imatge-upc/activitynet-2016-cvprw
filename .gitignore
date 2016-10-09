@@ -33,6 +33,7 @@ var/
 # Images and videos
 *.avi
 *.mp4
+*.gif
 *.h5
 *.hdf5
 *.log
