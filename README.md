@@ -22,7 +22,7 @@ This project is a baseline in the activity classification and its temporal locat
 
 ## Publication
 
-Download our paper at the 1st NIPS Workshop on Large Scale Computer Vision Systems by clicking here. Please cite with the following Bibtex code:
+Download our paper at the [1st NIPS Workshop on Large Scale Computer Vision Systems](https://sites.google.com/site/largescalecvsystems/cfp/index) by clicking [here](https://github.com/imatge-upc/activitynet-2016-cvprw/raw/master/temporal-activity-detection.pdf). Please cite with the following Bibtex code:
 
 ````
 @InProceedings{Montes_2016_NIPSWS,
