@@ -64,13 +64,8 @@
 <h2>
 <a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Abstract</h2>
 
-<p>Deep learning techniques have been proven to be a great success for tasks like object detection and classification.
-They have achieve huge accuracy on images but on videos where the temporal dimension is present, more new techniques are required to face task over them.</p>
-
-<p>Activity classification and temporal activity location require new models which try to explode the temporal correlations the videos present to achieve good results on this tasks. The work presented try to face this tasks, for both activity classification and temporal activity localization using the <a href="http://activity-net.org/download.html">ActivityNet Dataset</a>.</p>
-
-<p>This work propose to face the tasks with a two stage pipeline. The first stage is to extract video features from the C3D which exploit temporal correlations and then a RNN made up by LSTM cells which try to learn long-term correlations and returning a sequence of activities along the video that will help to classify and temporally localize activities.</p>
-
+<p>This work proposes a simple pipeline to classify and temporally localize activities in untrimmed videos. Our system uses features from a 3D Convolutional Neural Network (C3D) as input to train a a recurrent neural network (RNN) that learns to classify video clips of 16 frames. After clip prediction, we post-process the output of the RNN to assign a single activity label to each video, and determine the temporal boundaries of the activity within the video. We show how our system can achieve competitive results in both tasks with a simple architecture. We evaluate our method in the ActivityNet Challenge 2016, achieving a 0.5874 mAP and a 0.2237 mAP in the classification and detection tasks, respectively.</p>
+      
 <h2>
 <a id="what-are-you-going-to-find-here" class="anchor" href="#what-are-you-going-to-find-here" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Are You Going to Find Here</h2>
 
