@@ -1,6 +1,6 @@
 # Temporal Activity Detection in Untrimmed Videos with Recurrent Neural Networks
 
-This is the project page of the UPC team participating in the [ActivityNet Challenge][activitynet-challenge] for CVPR 2016.
+This project page describes our paper at the [1st NIPS Workshop on Large Scale Computer Vision Systems](https://sites.google.com/site/largescalecvsystems/cfp/index). This work also corresponds to the submission of the UPC team participating in the [ActivityNet Challenge][activitynet-challenge] for CVPR 2016.
 
 | ![Alberto Montes][image-alberto] | ![Amaia Salvador][image-amaia] | ![Xavier Giró-i-Nieto][image-xavier] | ![Santiago Pascual][image-santi] |
 | :---: | :---: | :---: | :---: |
@@ -14,16 +14,31 @@ Institution: [Universitat Politècnica de Catalunya](http://www.upc.edu).
 
 ## Abstract
 
-Deep learning techniques have been proven to be a great success for tasks like object detection and classification.
-They have achieve huge accuracy on images but on videos where the temporal dimension is present, more new techniques are required to face task over them.
-
-Activity classification and temporal activity location require new models which try to explode the temporal correlations the videos present to achieve good results on this tasks. The work presented try to face this tasks, for both activity classification and temporal activity localization using the [ActivityNet Dataset][activitynet-dataset].
-
-This work propose to face the tasks with a two stage pipeline. The first stage is to extract video features from the C3D which exploit temporal correlations and then a RNN made up by LSTM cells which try to learn long-term correlations and returning a sequence of activities along the video that will help to classify and temporally localize activities.
+This work proposes a simple pipeline to classify and temporally localize activities in untrimmed videos. Our system uses features from a 3D Convolutional Neural Network (C3D) as input to train a a recurrent neural network (RNN) that learns to classify video clips of 16 frames. After clip prediction, we post-process the output of the RNN to assign a single activity label to each video, and determine the temporal boundaries of the activity within the video. We show how our system can achieve competitive results in both tasks with a simple architecture. We evaluate our method in the ActivityNet Challenge 2016, achieving a 0.5874 mAP and a 0.2237 mAP in the classification and detection tasks, respectively.
 
 ## What Are You Going to Find Here
 
 This project is a baseline in the activity classification and its temporal location, focused on the [ActivityNet Challenge][activitynet-challenge]. Here is detailed all the process of our proposed pipeline, as well the trained models and the utility to classify and temporally localize activities on new videos given. All the steps have been detailed, from downloading the dataset, to predicting the temporal locations going through the feature extraction and also the training.
+
+## Publication
+
+Download our paper at the 1st NIPS Workshop on Large Scale Computer Vision Systems by clicking here. Please cite with the following Bibtex code:
+
+````
+@InProceedings{Montes_2016_NIPSWS,
+author = {Montes, Alberto and Salvador, Amaia and Pascual, Santiago and Giro-i-Nieto, Xavier},
+title = {Temporal Activity Detection in Untrimmed Videos with Recurrent Neural Networks},
+booktitle = {1st NIPS Workshop on Large Scale Computer Vision Systems},
+month = {December},
+year = {2016}
+}
+```
+
+You may also want to refer to our publication with the more human-friendly Chicago style:
+
+*Alberto Montes, Amaia Salvador, Santiago Pascual, and Xavier Giro-i-Nieto. "Temporal Activity Detection in Untrimmed Videos with Recurrent Neural Networks." In 1st NIPS Workshop on Large Scale Computer Vision Systems. 2016.*
+
+This work is the result of the bachelor thesis by Alberto Montes at UPC TelecomBCN ETSETB during Spring 2016. Please check his [technical report](https://arxiv.org/abs/1608.08128), [slides](http://www.slideshare.net/xavigiro/temporal-activity-detection-in-untrimmed-videos-with-recurrent-neural-networks?ref=https://imatge-upc.github.io/activitynet-2016-cvprw/) and [oral presentation](https://www.youtube.com/watch?v=3G-Vdmsluw0) for more details.
 
 ## Repository Structure
 
