@@ -1,4 +1,7 @@
 import argparse
+import os
+import random
+import time
 
 import numpy as np
 from keras.layers import (LSTM, BatchNormalization, Convolution3D, Dense, Dropout, Flatten, Input,
@@ -9,22 +12,42 @@ from src.data import import_labels
 from src.io import get_duration, get_num_frames, video_to_array
 from src.processing import activity_localization, get_classification, smoothing
 
+runtime_measures = {
+    'load_video': [],
+    'extract_features_c3d': [],
+    'temporal_localization_network': [],
+    'post-processing': [],
+    'video_duration': []
+}
 
-def run_all_pipeline(input_video, smoothing_k, activity_threshold):
+
+def run_runtime_tests(input_video, model_features, c3d_mean, model_localization):
     input_size = (112, 112)
     length = 16
+
+    # Setup post-processing variables
+    smoothing_k = 5
+    activity_threshold = .2
 
     # Load labels
     with open('dataset/labels.txt', 'r') as f:
         labels = import_labels(f)
 
+    print('')
+    print('#'*50)
+    print(input_video)
     print('Reading Video...')
+    t_s = time.time()
     video_array = video_to_array(input_video, resize=input_size)
+    t_e = time.time()
+    print('Loading Video: {:.2f}s'.format(t_e-t_s))
+    runtime_measures['load_video'].append(t_e-t_s)
     if video_array is None:
         raise Exception('The video could not be read')
     nb_frames = get_num_frames(input_video)
     duration = get_duration(input_video)
     fps = nb_frames / duration
+    runtime_measures['video_duration'].append(duration)
     print('Duration: {:.1f}s'.format(duration))
     print('FPS: {:.1f}'.format(fps))
     print('Number of frames: {}'.format(nb_frames))
@@ -35,31 +58,29 @@ def run_all_pipeline(input_video, smoothing_k, activity_threshold):
     video_array = video_array.reshape((nb_clips, length, 3, 112, 112))
     video_array = video_array.transpose(0, 2, 1, 3, 4)
 
-    # Load C3D model and mean
-    print('Loading C3D network...')
-    model  = C3D_conv_features(True)
-    model.compile(optimizer='sgd', loss='mse')
-    mean_total = np.load('data/models/c3d-sports1M_mean.npy')
-    mean = np.mean(mean_total, axis=(0, 2, 3, 4), keepdims=True)
-
     # Extract features
     print('Extracting features...')
-    X = video_array - mean
-    Y = model.predict(X, batch_size=1, verbose=1)
-
-    # Load the temporal localization network
-    print('Loading temporal localization network...')
-    model_localization = temporal_localization_network(True)
-    model_localization.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+    t_s = time.time()
+    X = video_array - c3d_mean
+    Y = model_features.predict(X, batch_size=1, verbose=1)
+    t_e = time.time()
+    print('Extracting C3D features: {:.2f}s'.format(t_e-t_s))
+    runtime_measures['extract_features_c3d'].append(t_e-t_s)
 
     # Predict with the temporal localization network
     print('Predicting...')
+    t_s = time.time()
     Y = Y.reshape(nb_clips, 1, 4096)
     prediction = model_localization.predict(Y, batch_size=1, verbose=1)
     prediction = prediction.reshape(nb_clips, 201)
+    t_e = time.time()
+    print('Prediction temporal activities: {:.2f}s'.format(t_e-t_s))
+    runtime_measures['temporal_localization_network'].append(t_e-t_s)
 
     # Post processing the predited output
     print('Post-processing output...')
+    t_s = time.time()
+
     labels_idx, scores = get_classification(prediction, k=5)
     print('Video: {}\n'.format(input_video))
     print('Classification:')
@@ -72,6 +93,9 @@ def run_all_pipeline(input_video, smoothing_k, activity_threshold):
         prediction_smoothed,
         activity_threshold
     )
+    t_e = time.time()
+    runtime_measures['post-processing'].append(t_e-t_s)
+    print('Post-processing runtime: {:.2f}s'.format(t_e-t_s))
 
     print('\nDetection:')
     print('Score\tInterval\t\tActivity')
@@ -173,17 +197,44 @@ def temporal_localization_network(summary=False):
         model.summary()
     return model
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run all pipeline. Given a video, classify it and temporal localize the activity on it')
+    videos_dir = '/imatge/amontes/work/datasets/ActivityNet/v1.3/videos'
+    N = 20  # Number of random videos
+    R = 3   # Repetitions
 
-    parser.add_argument('-i', '--input-video', type=str, dest='input_video', help='Path to the input video')
-    parser.add_argument('-k', type=int, dest='smoothing_k', default=5, help='Smoothing factor at post-processing (default: %(default)s)')
-    parser.add_argument('-t', type=float, dest='activity_threshold', default=.2, help='Activity threshold at post-processing (default: %(default)s)')
+    # Read dataset and choose 10 random videos from test dataset
+    videos_ids = [v for v in os.listdir(videos_dir) if v[-4:] == '.mp4']
+    start_video = random.choice(videos_ids)
+    videos_ids = random.sample(videos_ids, N)
 
-    args = parser.parse_args()
+    # Load C3D model and mean
+    print('Loading C3D network...')
+    model_features  = C3D_conv_features(True)
+    model_features.compile(optimizer='sgd', loss='mse')
+    mean_total = np.load('data/models/c3d-sports1M_mean.npy')
+    c3d_mean = np.mean(mean_total, axis=(0, 2, 3, 4), keepdims=True)
 
-    run_all_pipeline(
-        args.input_video,
-        args.smoothing_k,
-        args.activity_threshold
-    )
+    # Load the temporal localization network
+    print('Loading temporal localization network...')
+    model_localization = temporal_localization_network(True)
+    model_localization.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+
+    # First lets start with a random video (The timing of the first video is not significant as
+    # Keras working with Theano require to compile which increase the runnig time only the first time)
+    video_path = os.path.join(videos_dir, start_video)
+    run_runtime_tests(video_path, model_features, c3d_mean, model_localization)
+
+    for i in range(N):
+        video_path = os.path.join(videos_dir, videos_ids[i])
+        for _ in range(R):
+            run_runtime_tests(video_path, model_features, c3d_mean, model_localization)
+
+    with open('runtime_2.out', 'w') as f:
+        for k in runtime_measures.keys():
+            f.write(k+';')
+            values = runtime_measures[k]
+            for v in values:
+                f.write(str(v))
+                f.write(';')
+            f.write('\n')
