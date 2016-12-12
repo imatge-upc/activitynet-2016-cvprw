@@ -5,7 +5,7 @@ This project page describes our paper at the [1st NIPS Workshop on Large Scale C
 | ![Alberto Montes][image-alberto] | ![Amaia Salvador][image-amaia] | ![Xavier Giró-i-Nieto][image-xavier] | ![Santiago Pascual][image-santi] |
 | :---: | :---: | :---: | :---: |
 | Main contributor | Advisor | Advisor | Co-advisor |
-| Alberto Montes | [Amaia Salvador](web-amaia) | [Xavier Giró-i-Nieto][web-xavier] | Santiago Pascual |
+| [Alberto Montes][web-alberto] | [Amaia Salvador][web-amaia] | [Xavier Giró-i-Nieto][web-xavier] | [Santiago Pascual][web-santi] |
 
 Institution: [Universitat Politècnica de Catalunya](http://www.upc.edu).
 
@@ -110,10 +110,12 @@ on this github repo. Alternatively, drop us an e-mail at [xavier.giro@upc.edu](m
 [network-pipeline]: misc/images/network_pipeline.jpg
 
 <!--Links-->
+[web-alberto]: https://www.linkedin.com/in/albertomontesg
 [web-xavier]: https://imatge.upc.edu/web/people/xavier-giro
 [web-albert]: https://imatge.upc.edu/web/people/albert-gil-moreno
 [web-josep]: https://imatge.upc.edu/web/people/josep-pujal
 [web-amaia]: https://imatge.upc.edu/web/people/amaia-salvador
+[web-santi]: https://github.com/santi-pdp
 
 [activitynet-challenge]: http://activity-net.org/challenges/2016/
 [activitynet-dataset]: http://activity-net.org/download.html
