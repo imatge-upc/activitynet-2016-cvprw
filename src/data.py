@@ -31,8 +31,8 @@ def to_categorical(y, nb_classes=None):
     return Y
 
 def generate_output(video_info, labels, length=16):
-    ''' Given the info of the vide, generate a vector of classes corresponding the output for each
-    clip of the video which features have been extracted.
+    ''' Given the info of the vide, generate a vector of classes corresponding
+    the output for each clip of the video which features have been extracted.
     '''
     nb_frames = video_info['num_frames']
     last_first_name = nb_frames - length + 1
@@ -46,7 +46,7 @@ def generate_output(video_info, labels, length=16):
         t = i / float(nb_frames) * video_info['duration']
         for annotation in video_info['annotations']:
             if t >= annotation['segment'][0] and t <= annotation['segment'][1]:
-                outputs[i] = labels.index(annotation['label'])
+                outputs[i] = annotation['label']
                 label = annotation['label']
                 break
 
@@ -59,7 +59,7 @@ def generate_output(video_info, labels, length=16):
         if outs.count(label) >= length / 2:
             output = labels.index(label)
         else:
-            output = labels[0]
+            output = 0
         instances.append(output)
 
     return instances

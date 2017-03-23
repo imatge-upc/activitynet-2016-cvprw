@@ -3,14 +3,16 @@ import json
 import os
 import random
 
-import h5py
 import numpy as np
 from progressbar import ProgressBar
 
+import h5py
 from src.data import generate_output, import_labels, to_categorical
 
 
-def create_stateful_dataset(video_features_file, videos_info, labels, output_path, batch_size, timesteps, subset=None):
+def create_stateful_dataset(video_features_file, videos_info, labels,
+                            output_path, batch_size, timesteps,
+                            subset=None):
     features_size = 4096
     output_size = 201
 
