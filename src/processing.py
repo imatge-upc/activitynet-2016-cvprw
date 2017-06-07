@@ -47,7 +47,8 @@ def activity_localization(sequence_class_prob, activity_threshold=.2):
     activities_idx = []
     scores = []
 
-    for s, e in zip(startings, endings):
+    for segment in zip(startings, endings):
+    	s, e = map(int, segment)
         activities_idx.append(activity_idx)
         scores.append(np.mean(sequence_class_prob[s:e,activity_idx]))
 
