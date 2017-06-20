@@ -7,14 +7,15 @@ import sys
 import time
 import traceback
 
-import h5py
 import numpy as np
 from progressbar import ProgressBar
 
+import h5py
 from src.data import VideoGenerator
 
 
-def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size, num_gpus):
+def extract_features(videos_dir, output_dir, batch_size, num_threads,
+                     queue_size, num_gpus):
     # Defining variables
     input_size = (112, 112)
     length = 16
@@ -34,7 +35,8 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
 
     nb_videos = len(videos_ids_to_extract)
     print('Total number of videos: {}'.format(len(videos_ids)))
-    print('Videos already extracted its features: {}'.format(len(extracted_videos)))
+    print('Videos already extracted its features: {}'.format(
+        len(extracted_videos)))
     print('Videos to extract its features: {}'.format(nb_videos))
 
     # Creating Parallel Fetching Video Data
@@ -42,9 +44,11 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
     data_gen_queue = multiprocessing.Queue(maxsize=queue_size)
     _stop_all_generators = multiprocessing.Event()
     _stop_all_extractors = multiprocessing.Event()
+
     def data_generator_task(index):
-        generator = VideoGenerator(videos_ids_to_extract[index:nb_videos:num_threads],
-            videos_dir, 'mp4', length, input_size)
+        generator = VideoGenerator(
+            videos_ids_to_extract[index:nb_videos:num_threads], videos_dir,
+            'mp4', length, input_size)
         keep = True
         while keep:
             try:
@@ -64,14 +68,16 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
                 print('Something went wrong with generator_process')
                 print(traceback.print_exc())
 
-    generator_process = [multiprocessing.Process(target=data_generator_task, args=[i])
-                            for i in range(num_threads)]
+    generator_process = [
+        multiprocessing.Process(target=data_generator_task, args=[i])
+        for i in range(num_threads)
+    ]
     for process in generator_process:
         process.daemon = True
         process.start()
 
-
     data_save_queue = multiprocessing.Queue()
+
     def extranting_features_task():
         # Loading the model
         print('Loading model')
@@ -106,8 +112,10 @@ def extract_features(videos_dir, output_dir, batch_size, num_threads, queue_size
             data_save_queue.put((video_id, Y))
             print('Extracted features from video {}'.format(video_id))
 
-    extractors_process = [multiprocessing.Process(target=extranting_features_task)
-        for i in range(num_gpus)]
+    extractors_process = [
+        multiprocessing.Process(target=extranting_features_task)
+        for i in range(num_gpus)
+    ]
     for p in extractors_process:
         p.daemon = True
         p.start()
@@ -159,54 +167,130 @@ def C3D_conv_features(summary=False):
 
     model = Sequential()
     # 1st layer group
-    model.add(Convolution3D(64, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv1',
-                            subsample=(1, 1, 1),
-                            input_shape=(3, 16, 112, 112),
-                            trainable=False))
-    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
-                           border_mode='valid', name='pool1'))
+    model.add(
+        Convolution3D(
+            64,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv1',
+            subsample=(1, 1, 1),
+            input_shape=(3, 16, 112, 112),
+            trainable=False))
+    model.add(
+        MaxPooling3D(
+            pool_size=(1, 2, 2),
+            strides=(1, 2, 2),
+            border_mode='valid',
+            name='pool1'))
     # 2nd layer group
-    model.add(Convolution3D(128, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv2',
-                            subsample=(1, 1, 1),
-                            trainable=False))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                           border_mode='valid', name='pool2'))
+    model.add(
+        Convolution3D(
+            128,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv2',
+            subsample=(1, 1, 1),
+            trainable=False))
+    model.add(
+        MaxPooling3D(
+            pool_size=(2, 2, 2),
+            strides=(2, 2, 2),
+            border_mode='valid',
+            name='pool2'))
     # 3rd layer group
-    model.add(Convolution3D(256, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv3a',
-                            subsample=(1, 1, 1),
-                            trainable=False))
-    model.add(Convolution3D(256, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv3b',
-                            subsample=(1, 1, 1),
-                            trainable=False))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                           border_mode='valid', name='pool3'))
+    model.add(
+        Convolution3D(
+            256,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv3a',
+            subsample=(1, 1, 1),
+            trainable=False))
+    model.add(
+        Convolution3D(
+            256,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv3b',
+            subsample=(1, 1, 1),
+            trainable=False))
+    model.add(
+        MaxPooling3D(
+            pool_size=(2, 2, 2),
+            strides=(2, 2, 2),
+            border_mode='valid',
+            name='pool3'))
     # 4th layer group
-    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv4a',
-                            subsample=(1, 1, 1),
-                            trainable=False))
-    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv4b',
-                            subsample=(1, 1, 1),
-                            trainable=False))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                           border_mode='valid', name='pool4'))
+    model.add(
+        Convolution3D(
+            512,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv4a',
+            subsample=(1, 1, 1),
+            trainable=False))
+    model.add(
+        Convolution3D(
+            512,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv4b',
+            subsample=(1, 1, 1),
+            trainable=False))
+    model.add(
+        MaxPooling3D(
+            pool_size=(2, 2, 2),
+            strides=(2, 2, 2),
+            border_mode='valid',
+            name='pool4'))
     # 5th layer group
-    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv5a',
-                            subsample=(1, 1, 1),
-                            trainable=False))
-    model.add(Convolution3D(512, 3, 3, 3, activation='relu',
-                            border_mode='same', name='conv5b',
-                            subsample=(1, 1, 1),
-                            trainable=False))
+    model.add(
+        Convolution3D(
+            512,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv5a',
+            subsample=(1, 1, 1),
+            trainable=False))
+    model.add(
+        Convolution3D(
+            512,
+            3,
+            3,
+            3,
+            activation='relu',
+            border_mode='same',
+            name='conv5b',
+            subsample=(1, 1, 1),
+            trainable=False))
     model.add(ZeroPadding3D(padding=(0, 1, 1), name='zeropadding'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                           border_mode='valid', name='pool5'))
+    model.add(
+        MaxPooling3D(
+            pool_size=(2, 2, 2),
+            strides=(2, 2, 2),
+            border_mode='valid',
+            name='pool5'))
     model.add(Flatten(name='flatten'))
     # FC layers group
     model.add(Dense(4096, activation='relu', name='fc6', trainable=False))
@@ -227,27 +311,57 @@ def C3D_conv_features(summary=False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract video features using C3D network')
-    parser.add_argument('-d', '--videos-dir', type=str, dest='directory',
-        default='data/videos', help='videos directory (default: %(default)s)')
-    parser.add_argument('-o', '--output-dir', type=str, dest='output',
-        default='data/dataset', help='directory where to store the extracted features (default: %(default)s)')
-    parser.add_argument('-b', '--batch-size', type=int, dest='batch_size',
-        default=32, help='batch size when extracting features (default: %(default)s)')
-    parser.add_argument('-t', '--num-threads', type=int, dest='num_threads',
-        default=8, help='number of threads to fetch videos (default: %(default)s)')
-    parser.add_argument('-q', '--queue-size', type=int, dest='queue_size',
-        default=12, help='maximum number of elements at the queue when fetching videos (default %(default)s)')
-    parser.add_argument('-g', '--num-gpus', type=int, dest='num_gpus',
-        default=1, help='number of gpus to use for extracting features (default: %(default)s)')
+    parser = argparse.ArgumentParser(
+        description='Extract video features using C3D network')
+    parser.add_argument(
+        '-d',
+        '--videos-dir',
+        type=str,
+        dest='directory',
+        default='data/videos',
+        help='videos directory (default: %(default)s)')
+    parser.add_argument(
+        '-o',
+        '--output-dir',
+        type=str,
+        dest='output',
+        default='data/dataset',
+        help=
+        'directory where to store the extracted features (default: %(default)s)'
+    )
+    parser.add_argument(
+        '-b',
+        '--batch-size',
+        type=int,
+        dest='batch_size',
+        default=32,
+        help='batch size when extracting features (default: %(default)s)')
+    parser.add_argument(
+        '-t',
+        '--num-threads',
+        type=int,
+        dest='num_threads',
+        default=8,
+        help='number of threads to fetch videos (default: %(default)s)')
+    parser.add_argument(
+        '-q',
+        '--queue-size',
+        type=int,
+        dest='queue_size',
+        default=12,
+        help=
+        'maximum number of elements at the queue when fetching videos (default %(default)s)'
+    )
+    parser.add_argument(
+        '-g',
+        '--num-gpus',
+        type=int,
+        dest='num_gpus',
+        default=1,
+        help=
+        'number of gpus to use for extracting features (default: %(default)s)')
 
     args = parser.parse_args()
 
-    extract_features(
-        args.directory,
-        args.output,
-        args.batch_size,
-        args.num_threads,
-        args.queue_size,
-        args.num_gpus
-    )
+    extract_features(args.directory, args.output, args.batch_size,
+                     args.num_threads, args.queue_size, args.num_gpus)

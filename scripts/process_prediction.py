@@ -4,15 +4,20 @@ import json
 import os
 import sys
 
-import h5py
 import numpy as np
 from progressbar import ProgressBar
 
+import h5py
 from src.data import import_labels
 from src.processing import activity_localization, get_classification, smoothing
 
 
-def process_prediction(experiment_id, predictions_path, output_path, smoothing_k, activity_threshold, subset=None):
+def process_prediction(experiment_id,
+                       predictions_path,
+                       output_path,
+                       smoothing_k,
+                       activity_threshold,
+                       subset=None):
     clip_length = 16.
 
     if subset == None:
@@ -22,8 +27,7 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
 
     predictions_file = os.path.join(
         predictions_path,
-        'predictions_{experiment_id}.hdf5'.format(experiment_id=experiment_id)
-    )
+        'predictions_{experiment_id}.hdf5'.format(experiment_id=experiment_id))
 
     with open('dataset/labels.txt', 'r') as f:
         labels = import_labels(f)
@@ -36,7 +40,8 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
         subset_predictions = f_predictions[subset]
 
         progbar = ProgressBar(max_value=len(subset_predictions.keys()))
-        with open('dataset/templates/results_{}.json'.format(subset), 'r') as f:
+        with open('dataset/templates/results_{}.json'.format(subset),
+                  'r') as f:
             results_classification = json.load(f)
         results_detection = copy.deepcopy(results_classification)
 
@@ -63,19 +68,17 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
             # Post Processing to obtain the detection
             prediction_smoothed = smoothing(prediction, k=smoothing_k)
             activities_idx, startings, endings, scores = activity_localization(
-                prediction_smoothed,
-                activity_threshold
-            )
+                prediction_smoothed, activity_threshold)
             result_detection = []
-            for idx, s, e, score in zip(activities_idx, startings, endings, scores):
+            for idx, s, e, score in zip(activities_idx, startings, endings,
+                                        scores):
                 label = labels[idx]
                 result_detection.append({
-                    'score': score,
-                    'segment': [
-                        s * clip_length / fps,
-                        e * clip_length / fps
-                    ],
-                    'label': label
+                    'score':
+                    score,
+                    'segment': [s * clip_length / fps, e * clip_length / fps],
+                    'label':
+                    label
                 })
             results_detection['results'][video_id] = result_detection
 
@@ -84,13 +87,11 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
         progbar.finish()
 
         classification_output_file = os.path.join(
-            output_path,
-            'results_classification_{}_{}.json'.format(experiment_id, subset)
-        )
+            output_path, 'results_classification_{}_{}.json'.format(
+                experiment_id, subset))
         detection_output_file = os.path.join(
-            output_path,
-            'results_detection_{}_{}.json'.format(experiment_id, subset)
-        )
+            output_path, 'results_detection_{}_{}.json'.format(
+                experiment_id, subset))
         with open(classification_output_file, 'w') as f:
             json.dump(results_classification, f)
         with open(detection_output_file, 'w') as f:
@@ -100,24 +101,59 @@ def process_prediction(experiment_id, predictions_path, output_path, smoothing_k
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Post-process the prediction of the RNN to obtain the classification and temporal localization of the videos activity')
+    parser = argparse.ArgumentParser(
+        description=
+        'Post-process the prediction of the RNN to obtain the classification and temporal localization of the videos activity'
+    )
 
-    parser.add_argument('--id', dest='experiment_id', default=0, help='Experiment ID to track and not overwrite results')
-    parser.add_argument('-p', '--predictions-path', type=str, dest='predictions_path', default='data/dataset', help='Path where the predictions file is stored (default: %(default)s)')
-    parser.add_argument('-o', '--output-path', type=str, dest='output_path', default='data/dataset', help='Path where is desired to store the results (default: %(default)s)')
+    parser.add_argument(
+        '--id',
+        dest='experiment_id',
+        default=0,
+        help='Experiment ID to track and not overwrite results')
+    parser.add_argument(
+        '-p',
+        '--predictions-path',
+        type=str,
+        dest='predictions_path',
+        default='data/dataset',
+        help=
+        'Path where the predictions file is stored (default: %(default)s)')
+    parser.add_argument(
+        '-o',
+        '--output-path',
+        type=str,
+        dest='output_path',
+        default='data/dataset',
+        help=
+        'Path where is desired to store the results (default: %(default)s)')
 
-    parser.add_argument('-k', type=int, dest='smoothing_k', default=5, help='Smoothing factor at post-processing (default: %(default)s)')
-    parser.add_argument('-t', type=float, dest='activity_threshold', default=.2, help='Activity threshold at post-processing (default: %(default)s)')
+    parser.add_argument(
+        '-k',
+        type=int,
+        dest='smoothing_k',
+        default=5,
+        help='Smoothing factor at post-processing (default: %(default)s)')
+    parser.add_argument(
+        '-t',
+        type=float,
+        dest='activity_threshold',
+        default=.2,
+        help='Activity threshold at post-processing (default: %(default)s)')
 
-    parser.add_argument('-s', '--subset', type=str, dest='subset', default=None, choices=['validation', 'testing'], help='Subset you want to post-process the output (default: validation and testing)')
+    parser.add_argument(
+        '-s',
+        '--subset',
+        type=str,
+        dest='subset',
+        default=None,
+        choices=['validation', 'testing'],
+        help=
+        'Subset you want to post-process the output (default: validation and testing)'
+    )
 
     args = parser.parse_args()
 
-    process_prediction(
-        args.experiment_id,
-        args.predictions_path,
-        args.output_path,
-        args.smoothing_k,
-        args.activity_threshold,
-        args.subset
-    )
+    process_prediction(args.experiment_id, args.predictions_path,
+                       args.output_path, args.smoothing_k,
+                       args.activity_threshold, args.subset)

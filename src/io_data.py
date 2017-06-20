@@ -1,8 +1,12 @@
 import numpy as np
 
 
-def video_to_array(video_path, resize=None, start_frame=0, end_frame=None,
-                   length=None, dim_ordering='th'):
+def video_to_array(video_path,
+                   resize=None,
+                   start_frame=0,
+                   end_frame=None,
+                   length=None,
+                   dim_ordering='th'):
     ''' Convert the video at the path given in to an array
     Args:
         video_path (string): path where the video is stored
@@ -83,6 +87,7 @@ def get_num_frames(video_path):
         raise Exception('Could not open the video')
     num_frames = int(cap.get(CAP_PROP_FRAME_COUNT))
     return num_frames
+
 
 def get_duration(video_path):
     ''' Return the duration of the video track of the video given '''
