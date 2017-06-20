@@ -1,7 +1,6 @@
 git+https://github.com/albertomontesg/keras.git@improved-3d-ops
 h5py
 jupyter==1.0.0
-Keras==1.0.4
 numpy==1.11.2
 progressbar2==3.9.3
 Theano==0.8.2
