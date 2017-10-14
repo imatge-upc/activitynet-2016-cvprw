@@ -24,7 +24,7 @@ This project is a baseline in the activity classification and its temporal locat
 
 Download our paper at the [1st NIPS Workshop on Large Scale Computer Vision Systems](https://sites.google.com/site/largescalecvsystems/cfp/index) by clicking [here](https://github.com/imatge-upc/activitynet-2016-cvprw/raw/master/temporal-activity-detection.pdf). Please cite with the following Bibtex code:
 
-````
+```
 @InProceedings{Montes_2016_NIPSWS,
 author = {Montes, Alberto and Salvador, Amaia and Pascual, Santiago and Giro-i-Nieto, Xavier},
 title = {Temporal Activity Detection in Untrimmed Videos with Recurrent Neural Networks},
